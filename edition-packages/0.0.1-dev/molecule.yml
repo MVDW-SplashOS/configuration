@@ -1,0 +1,382 @@
+parentconfig: false
+
+
+packages:
+    - package: "acl"
+      version: "2.3.1"
+
+    - package: "attr"
+      version: "2.5.1"
+
+    - package: "autoconf"
+      version: "2.71"
+
+    - package: "automake"
+      version: "1.16.5"
+
+    - package: "bash"
+      version: "5.2.15"
+
+    - package: "bc"
+      version: "6.2.4"
+
+    - package: "binutils"
+      version: "2.40"
+
+    - package: "bison"
+      version: "3.8.2"
+
+    - package: "bzip2"
+      version: "1.0.8"
+
+    - package: "check"
+      version: "0.15.2"
+
+    - package: "coreutils"
+      version: "9.1"
+
+    - package: "dbus"
+      version: "1.14.6"
+
+    - package: "dejagnu"
+      version: "1.6.3"
+
+    - package: "diffutils"
+      version: "3.9"
+
+    - package: "e2fsprogs"
+      version: "1.47.0"
+
+    - package: "elfutils"
+      version: "0.188"
+
+    - package: "expat"
+      version: "2.5.0"
+
+    - package: "expect"
+      version: "5.45.4"
+
+    - package: "file"
+      version: "5.44"
+
+    - package: "findutils"
+      version: "4.9.0"
+
+    - package: "flex"
+      version: "2.6.4"
+
+    - package: "gawk"
+      version: "5.2.1"
+
+    - package: "gcc"
+      version: "12.2.0"
+
+    - package: "gdbm"
+      version: "1.23"
+
+    - package: "gettext"
+      version: "0.21.1"
+
+    - package: "glibc"
+      version: "2.37"
+
+    - package: "gmp"
+      version: "6.2.1"
+
+    - package: "gperf"
+      version: "3.1"
+
+    - package: "grep"
+      version: "3.8"
+
+    - package: "groff"
+      version: "1.22.4"
+
+    - package: "grub"
+      version: "2.06"
+
+    - package: "gzip"
+      version: "1.12"
+
+    - package: "iana_etc"
+      version: "20230202"
+
+    - package: "inetutils"
+      version: "2.4"
+
+    - package: "intltool"
+      version: "0.51.0"
+
+    - package: "iproute2"
+      version: "6.1.0"
+
+    - package: "jinja2"
+      version: "3.1.2"
+
+    - package: "kbd"
+      version: "2.5.1"
+
+    - package: "kmod"
+      version: "30"
+
+    - package: "less"
+      version: "608"
+
+    - package: "libcap"
+      version: "2.67"
+
+    - package: "libffi"
+      version: "3.4.4"
+
+    - package: "libpipeline"
+      version: "1.5.7"
+
+    - package: "libtool"
+      version: "2.4.7"
+
+    - package: "linux"
+      version: "6.1.11"
+
+    - package: "m4"
+      version: "1.4.19"
+
+    - package: "make"
+      version: "4.4"
+
+    - package: "man_db"
+      version: "2.11.2"
+
+    - package: "man_pages"
+      version: "6.03"
+
+    - package: "markupsafe"
+      version: "2.1.2"
+
+    - package: "meson"
+      version: "1.0.0"
+
+    - package: "mpc"
+      version: "1.3.1"
+
+    - package: "mpfr"
+      version: "4.2.0"
+
+    - package: "ncurses"
+      version: "6.4"
+
+    - package: "ninja"
+      version: "1.11.1"
+
+    - package: "openssl"
+      version: "3.0.8"
+
+    - package: "patch"
+      version: "2.7.6"
+
+    - package: "perl"
+      version: "5.36.0"
+
+    - package: "pkg_config"
+      version: "0.29.2"
+
+    - package: "procps_ng"
+      version: "4.0.2"
+
+    - package: "psmisc"
+      version: "23.6"
+
+    - package: "python"
+      version: "3.11.2"
+
+    - package: "python_docs"
+      version: "3.11.2"
+
+    - package: "readline"
+      version: "8.2"
+
+    - package: "sed"
+      version: "4.9"
+
+    - package: "shadow"
+      version: "4.13"
+
+    - package: "systemd"
+      version: "252"
+
+    - package: "systemd_man_pages"
+      version: "252-2"
+
+    - package: "tar"
+      version: "1.34"
+
+    - package: "tcl"
+      version: "8.6.13"
+
+    - package: "tcl_docs"
+      version: "8.6.13"
+
+    - package: "texinfo"
+      version: "7.0.2"
+
+    - package: "tzdata"
+      version: "2022g"
+
+    - package: "util_linux"
+      version: "2.38.1"
+
+    - package: "vim"
+      version: "9.0.1273"
+
+    - package: "wheel"
+      version: "0.38.4"
+
+    - package: "xml_parser"
+      version: "2.46"
+
+    - package: "xz"
+      version: "5.4.1"
+
+    - package: "zlib"
+      version: "1.2.13"
+
+    - package: "zstd"
+      version: "1.5.4"
+
+
+build:
+
+    # -------------------------------------------------------------------------
+    #
+    #      STEP 2: Compiling a cross-toolchain
+    #
+    # -------------------------------------------------------------------------
+
+    - task: compile
+      package: binutils
+      buildmode: 1
+      
+    - task: compile
+      package: gcc
+      buildmode: 1
+
+    - task: compile
+      package: linux
+      buildmode: 1
+
+    - task: compile
+      package: glibc
+      buildmode: 1
+
+    - task: compile
+      package: gcc
+      buildmode: 2
+
+    # -------------------------------------------------------------------------
+    #
+    #      STEP 3: Cross Compiling Temporary Tools
+    #
+    # -------------------------------------------------------------------------
+
+    - task: compile
+      package: m4
+      buildmode: 1
+      
+    - task: compile
+      package: ncurses
+      buildmode: 1
+
+    - task: compile
+      package: bash
+      buildmode: 1
+
+    - task: compile
+      package: coreutils
+      buildmode: 1
+
+    - task: compile
+      package: diffutils
+      buildmode: 1
+    
+    - task: compile
+      package: file
+      buildmode: 1
+    
+    - task: compile
+      package: findutils
+      buildmode: 1
+    
+    - task: compile
+      package: gawk
+      buildmode: 1
+    
+    - task: compile
+      package: grep
+      buildmode: 1
+    
+    - task: compile
+      package: gzip
+      buildmode: 1
+    
+    - task: compile
+      package: make
+      buildmode: 1
+    
+    - task: compile
+      package: patch
+      buildmode: 1
+    
+    - task: compile
+      package: sed
+      buildmode: 1
+    
+    - task: compile
+      package: tar
+      buildmode: 1
+    
+    - task: compile
+      package: xz
+      buildmode: 1
+    
+    - task: compile
+      package: binutils
+      buildmode: 2
+    
+    - task: compile
+      package: gcc
+      buildmode: 3
+
+    # -------------------------------------------------------------------------
+    #
+    #      STEP 4: Change to Chroot Enviroment and Building Temporary Tools
+    #
+    # -------------------------------------------------------------------------
+
+    - task: next_step # Go into Chroot enviroment
+
+    - task: compile
+      package: gettext
+      buildmode: 1
+
+    - task: compile
+      package: bison
+      buildmode: 1
+
+    - task: compile
+      package: python
+      buildmode: 1
+
+    - task: compile
+      package: texinfo
+      buildmode: 1
+
+    - task: compile
+      package: util_linux
+      buildmode: 1
+    
+    - task: next_step # Clean Chroot enviroment
+
+    # -------------------------------------------------------------------------
+    #
+    #      STEP 5: Building the Final Tools
+    #
+    # -------------------------------------------------------------------------
