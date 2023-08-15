@@ -1,0 +1,246 @@
+acl:
+    url: "https://download.savannah.gnu.org/releases/acl/acl-{VERSION}.tar.xz"
+    subdir: true
+attr:
+    url: "https://download.savannah.gnu.org/releases/attr/attr-{VERSION}.tar.gz"
+    subdir: true
+autoconf:
+    url: "https://ftp.gnu.org/gnu/autoconf/autoconf-{VERSION}.tar.xz"
+    subdir: true
+automake:
+    url: "https://ftp.gnu.org/gnu/automake/automake-{VERSION}.tar.xz"
+    subdir: true
+bash:
+    url: "https://ftp.gnu.org/gnu/bash/bash-{VERSION}.tar.gz"
+    subdir: true
+bc:
+    url: "https://github.com/gavinhoward/bc/releases/download/{VERSION}/bc-{VERSION}.tar.xz"
+    subdir: true
+binutils:
+    url: "https://ftp.gnu.org/gnu/binutils/binutils-{VERSION}.tar.xz"
+    subdir: true
+bison:
+    url: "https://ftp.gnu.org/gnu/bison/bison-{VERSION}.tar.xz"
+    subdir: true
+bzip2:
+    url: "https://www.sourceware.org/pub/bzip2/bzip2-{VERSION}.tar.gz"
+    subdir: true
+check:
+    url: "https://github.com/libcheck/check/releases/download/{VERSION}/check-{VERSION}.tar.gz"
+    subdir: true
+coreutils:
+    url: "https://ftp.gnu.org/gnu/coreutils/coreutils-{VERSION}.tar.xz"
+    subdir: true
+dbus:
+    url: "https://dbus.freedesktop.org/releases/dbus/dbus-{VERSION}.tar.xz"
+    subdir: true
+dejagnu:
+    url: "https://ftp.gnu.org/gnu/dejagnu/dejagnu-{VERSION}.tar.gz"
+    subdir: true
+diffutils:
+    url: "https://ftp.gnu.org/gnu/diffutils/diffutils-{VERSION}.tar.xz"
+    subdir: true
+e2fsprogs:
+    url: "https://downloads.sourceforge.net/project/e2fsprogs/e2fsprogs/v{VERSION}/e2fsprogs-{VERSION}.tar.gz"
+    subdir: true
+elfutils:
+    url: "https://sourceware.org/ftp/elfutils/{VERSION}/elfutils-{VERSION}.tar.bz2"
+    subdir: true
+eudev:
+    url: "https://github.com/eudev-project/eudev/releases/download/{VERSION}/eudev-{VERSION}.tar.gz"
+    subdir: true
+expat:
+    url: "https://prdownloads.sourceforge.net/expat/expat-{VERSION}.tar.xz"
+    subdir: true
+expect:
+    url: "https://prdownloads.sourceforge.net/expect/expect{VERSION}.tar.gz"
+    subdir: "{PACKAGE}{VERSION}"
+file:
+    url: "https://astron.com/pub/file/file-{VERSION}.tar.gz"
+    subdir: true
+findutils:
+    url: "https://ftp.gnu.org/gnu/findutils/findutils-{VERSION}.tar.xz"
+    subdir: true
+flex:
+    url: "https://github.com/westes/flex/releases/download/v2.6.4/flex-{VERSION}.tar.gz"
+    subdir: true
+gawk:
+    url: "https://ftp.gnu.org/gnu/gawk/gawk-{VERSION}.tar.xz"
+    subdir: true
+gcc:
+    url: "https://ftp.gnu.org/gnu/gcc/gcc-{VERSION}/gcc-{VERSION}.tar.xz"
+    subdir: true
+gdbm:
+    url: "https://ftp.gnu.org/gnu/gdbm/gdbm-{VERSION}.tar.gz"
+    subdir: true
+gettext:
+    url: "https://ftp.gnu.org/gnu/gettext/gettext-{VERSION}.tar.xz"
+    subdir: true
+glibc:
+    url: "https://ftp.gnu.org/gnu/glibc/glibc-{VERSION}.tar.xz"
+    subdir: true
+gmp:
+    url: "https://ftp.gnu.org/gnu/gmp/gmp-{VERSION}.tar.xz"
+    subdir: true
+gperf:
+    url: "https://ftp.gnu.org/gnu/gperf/gperf-{VERSION}.tar.gz"
+    subdir: true
+grep:
+    url: "https://ftp.gnu.org/gnu/grep/grep-{VERSION}.tar.xz"
+    subdir: true
+groff:
+    url: "https://ftp.gnu.org/gnu/groff/groff-{VERSION}.tar.gz"
+    subdir: true
+grub:
+    url: "https://ftp.gnu.org/gnu/grub/grub-{VERSION}.tar.xz"
+    subdir: true
+gzip:
+    url: "https://ftp.gnu.org/gnu/gzip/gzip-{VERSION}.tar.xz"
+    subdir: true
+iana_etc:
+    url: "https://github.com/Mic92/iana-etc/releases/download/{VERSION}/iana-etc-{VERSION}.tar.gz"
+    subdir: "iana-etc-{VERSION}"
+inetutils:
+    url: "https://ftp.gnu.org/gnu/inetutils/inetutils-{VERSION}.tar.xz"
+    subdir: true
+intltool:
+    url: "https://launchpad.net/intltool/trunk/{VERSION}/+download/intltool-{VERSION}.tar.gz"
+    subdir: true
+iproute2:
+    url: "https://www.kernel.org/pub/linux/utils/net/iproute2/iproute2-{VERSION}.tar.xz"
+    subdir: true
+jinja2:
+    url: "https://files.pythonhosted.org/packages/source/J/Jinja2/Jinja2-{VERSION}.tar.gz"
+    subdir: "Jinja2-{VERSION}"
+kbd:
+    url: "https://www.kernel.org/pub/linux/utils/kbd/kbd-{VERSION}.tar.xz"
+    subdir: true
+kmod:
+    url: "https://www.kernel.org/pub/linux/utils/kernel/kmod/kmod-{VERSION}.tar.xz"
+    subdir: true
+less:
+    url: "https://www.greenwoodsoftware.com/less/less-{VERSION}.tar.gz"
+    subdir: true
+libcap:
+    url: "https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/libcap-{VERSION}.tar.xz"
+    subdir: true
+libffi:
+    url: "https://github.com/libffi/libffi/releases/download/v{VERSION}/libffi-{VERSION}.tar.gz"
+    subdir: true
+libpipeline:
+    url: "https://download.savannah.gnu.org/releases/libpipeline/libpipeline-{VERSION}.tar.gz"
+    subdir: true
+libtool:
+    url: "https://ftp.gnu.org/gnu/libtool/libtool-{VERSION}.tar.xz"
+    subdir: true
+linux:
+    url: "https://www.kernel.org/pub/linux/kernel/v6.x/linux-{VERSION}.tar.xz"
+    subdir: true
+m4:
+    url: "https://ftp.gnu.org/gnu/m4/m4-{VERSION}.tar.xz"
+    subdir: true
+make:
+    url: "https://ftp.gnu.org/gnu/make/make-{VERSION}.tar.gz"
+    subdir: true
+man_db:
+    url: "https://download.savannah.gnu.org/releases/man-db/man-db-{VERSION}.tar.xz"
+    subdir: "man-db-{VERSION}"
+man_pages:
+    url: "https://www.kernel.org/pub/linux/docs/man-pages/man-pages-{VERSION}.tar.xz"
+    subdir: "man-pages-{VERSION}"
+markupsafe:
+    url: "https://files.pythonhosted.org/packages/source/M/MarkupSafe/MarkupSafe-{VERSION}.tar.gz"
+    subdir: "MarkupSafe-{VERSION}"
+meson:
+    url: "https://github.com/mesonbuild/meson/releases/download/{VERSION}/meson-{VERSION}.tar.gz"
+    subdir: true
+mpc:
+    url: "https://ftp.gnu.org/gnu/mpc/mpc-{VERSION}.tar.gz"
+    subdir: true
+mpfr:
+    url: "https://ftp.gnu.org/gnu/mpfr/mpfr-{VERSION}.tar.xz"
+    subdir: true
+ncurses:
+    url: "https://invisible-mirror.net/archives/ncurses/ncurses-{VERSION}.tar.gz"
+    subdir: true
+neofetch:
+    url: "https://github.com/dylanaraps/neofetch/archive/7.1.0/neofetch-7.1.0.tar.gz"
+    subdir: true
+ninja:
+    url: "https://github.com/ninja-build/ninja/archive/v{VERSION}/ninja-{VERSION}.tar.gz"
+    subdir: true
+openssl:
+    url: "https://www.openssl.org/source/openssl-{VERSION}.tar.gz"
+    subdir: true
+patch:
+    url: "https://ftp.gnu.org/gnu/patch/patch-{VERSION}.tar.xz"
+    subdir: true
+perl:
+    url: "https://www.cpan.org/src/5.0/perl-{VERSION}.tar.xz"
+    subdir: true
+pkg_config:
+    url: "https://pkg-config.freedesktop.org/releases/pkg-config-{VERSION}.tar.gz"
+    subdir: "pkg-config-{VERSION}"
+procps_ng:
+    url: "https://sourceforge.net/projects/procps-ng/files/Production/procps-ng-{VERSION}.tar.xz"
+    subdir: "procps-ng-{VERSION}"
+psmisc:
+    url: "https://sourceforge.net/projects/psmisc/files/psmisc/psmisc-{VERSION}.tar.xz"
+    subdir: true
+python:
+    url: "https://www.python.org/ftp/python/{VERSION}/Python-{VERSION}.tar.xz"
+    subdir: "Python-{VERSION}"
+python_docs:
+    url: "https://www.python.org/ftp/python/doc/{VERSION}/python-{VERSION}-docs-html.tar.bz2"
+    subdir: "python-{VERSION}-docs-html"
+readline:
+    url: "https://ftp.gnu.org/gnu/readline/readline-{VERSION}.tar.gz"
+    subdir: true
+sed:
+    url: "https://ftp.gnu.org/gnu/sed/sed-{VERSION}.tar.xz"
+    subdir: true
+shadow:
+    url: "https://github.com/shadow-maint/shadow/releases/download/{VERSION}/shadow-{VERSION}.tar.xz"
+    subdir: true
+systemd:
+    url: "https://github.com/systemd/systemd/archive/v{VERSION}/systemd-{VERSION}.tar.gz"
+    subdir: true
+systemd_man_pages:
+    url: "https://anduin.linuxfromscratch.org/LFS/systemd-man-pages-{VERSION}.tar.xz"
+    subdir: "systemd-man-pages-{VERSION}"
+tar:
+    url: "https://ftp.gnu.org/gnu/tar/tar-{VERSION}.tar.xz"
+    subdir: true
+tcl:
+    url: "https://downloads.sourceforge.net/tcl/tcl{VERSION}-src.tar.gz"
+    subdir: "tcl{VERSION}"
+tcl_docs:
+    url: "https://downloads.sourceforge.net/tcl/tcl{VERSION}-html.tar.gz"
+    subdir: "tcl{VERSION}"
+texinfo:
+    url: "https://ftp.gnu.org/gnu/texinfo/texinfo-{VERSION}.tar.xz"
+    subdir: true
+tzdata:
+    url: "https://www.iana.org/time-zones/repository/releases/tzdata{VERSION}.tar.gz"
+    subdir: false
+util_linux:
+    url: "https://www.kernel.org/pub/linux/utils/util-linux/v2.38/util-linux-{VERSION}.tar.xz"
+    subdir: "util-linux-{VERSION}"
+vim:
+    url: "https://anduin.linuxfromscratch.org/LFS/vim-{VERSION}.tar.xz"
+    subdir: true
+wheel:
+    url: "https://pypi.org/packages/source/w/wheel/wheel-{VERSION}.tar.gz"
+    subdir: true
+xml_parser:
+    url: "https://cpan.metacpan.org/authors/id/T/TO/TODDR/XML-Parser-{VERSION}.tar.gz"
+    subdir: "XML-Parser-{VERSION}"
+xz:
+    url: "https://tukaani.org/xz/xz-{VERSION}.tar.xz"
+    subdir: true
+zlib:
+    url: "https://zlib.net/zlib-{VERSION}.tar.xz"
+    subdir: true
+zstd:
+    url: "https://github.com/facebook/zstd/releases/download/v{VERSION}/zstd-{VERSION}.tar.gz"
+    subdir: true
