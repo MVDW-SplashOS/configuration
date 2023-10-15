@@ -236,6 +236,9 @@ packages:
     - package: "xz"
       version: "5.4.1"
 
+    - package: "yq"
+      version: "4.35.1"
+
     - package: "zlib"
       version: "1.2.13"
 
@@ -338,6 +341,10 @@ build:
       buildmode: 1
     
     - task: compile
+      package: yq
+      buildmode: 1
+
+    - task: compile
       package: binutils
       buildmode: 2
     
@@ -351,32 +358,165 @@ build:
     #
     # -------------------------------------------------------------------------
 
-    - task: next_step # Go into Chroot enviroment
+    - task: change_enviroment
+      enviroment: chroot
+      build:
+        - task: setup_chroot
 
-    - task: compile
-      package: gettext
-      buildmode: 1
+        - task: compile
+          package: gettext
+          buildmode: 1
 
-    - task: compile
-      package: bison
-      buildmode: 1
+        - task: compile
+          package: bison
+          buildmode: 1
 
-    - task: compile
-      package: python
-      buildmode: 1
+        - task: compile
+          package: perl
+          buildmode: 1
 
-    - task: compile
-      package: texinfo
-      buildmode: 1
+        - task: compile
+          package: python
+          buildmode: 1
 
-    - task: compile
-      package: util_linux
-      buildmode: 1
+        - task: compile
+          package: texinfo
+          buildmode: 1
+
+        - task: compile
+          package: util_linux
+          buildmode: 1
     
-    - task: next_step # Clean Chroot enviroment
 
     # -------------------------------------------------------------------------
     #
     #      STEP 5: Building the Final Tools
     #
     # -------------------------------------------------------------------------
+        - task: compile
+          package: man-pages
+          buildmode: 1
+          
+        - task: compile
+          package: iana-etc
+          buildmode: 1
+          
+        - task: compile
+          package: glibc
+          buildmode: 3
+       
+        - task: compile
+          package: zlib
+          buildmode: 1
+          
+        - task: compile
+          package: xz
+          buildmode: 1
+          
+        - task: compile
+          package: zstd
+          buildmode: 1
+          
+        - task: compile
+          package: file
+          buildmode: 1
+          
+        - task: compile
+          package: file
+          buildmode: 1
+          
+        - task: compile
+          package: readline
+          buildmode: 1
+          
+        - task: compile
+          package: m4
+          buildmode: 2
+          
+        - task: compile
+          package: bc
+          buildmode: 1
+          
+        - task: compile
+          package: flex
+          buildmode: 1
+          
+        - task: compile
+          package: tcl
+          buildmode: 1
+          
+        - task: compile
+          package: expect
+          buildmode: 1
+          
+        - task: compile
+          package: dejagnu
+          buildmode: 1
+          
+        - task: compile
+          package: binutils
+          buildmode: 3
+          
+        - task: compile
+          package: gmp
+          buildmode: 1
+          
+        - task: compile
+          package: mpfr
+          buildmode: 1
+          
+        - task: compile
+          package: mpc
+          buildmode: 1
+          
+        - task: compile
+          package: attr
+          buildmode: 1
+          
+        - task: compile
+          package: acl
+          buildmode: 1
+          
+        - task: compile
+          package: libcap
+          buildmode: 1
+          
+        - task: compile
+          package: shadow
+          buildmode: 1
+          
+        - task: compile
+          package: gcc
+          buildmode: 4
+          
+        - task: compile
+          package: pkgconfig
+          buildmode: 1
+          
+        - task: compile
+          package: ncurses
+          buildmode: 2
+          
+        - task: compile
+          package: sed
+          buildmode: 2
+          
+        - task: compile
+          package: psmic
+          buildmode: 1
+          
+        - task: compile
+          package: gettext
+          buildmode: 2
+          
+        - task: compile
+          package: bison
+          buildmode: 2
+          
+        - task: compile
+          package: grep
+          buildmode: 2
+          
+        - task: compile
+          package: bash
+          buildmode: 1
