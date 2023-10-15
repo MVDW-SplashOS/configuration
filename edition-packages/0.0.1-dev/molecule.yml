@@ -394,11 +394,11 @@ build:
     #
     # -------------------------------------------------------------------------
         - task: compile
-          package: man-pages
+          package: man_pages
           buildmode: 1
           
         - task: compile
-          package: iana-etc
+          package: iana_etc
           buildmode: 1
           
         - task: compile
@@ -490,7 +490,7 @@ build:
           buildmode: 4
           
         - task: compile
-          package: pkgconfig
+          package: pkg_config
           buildmode: 1
           
         - task: compile
