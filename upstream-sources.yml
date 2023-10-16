@@ -242,7 +242,7 @@ yq:
     url: "https://github.com/mikefarah/yq/archive/v{VERSION}/yq-{VERSION}.tar.gz"
     subdir: true
 zlib:
-    url: "https://zlib.net/fossils/zlib-{VERSION}.tar.xz"
+    url: "https://zlib.net/fossils/zlib-{VERSION}.tar.gz"
     subdir: true
 zstd:
     url: "https://github.com/facebook/zstd/releases/download/v{VERSION}/zstd-{VERSION}.tar.gz"
