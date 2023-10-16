@@ -403,7 +403,7 @@ build:
           
         - task: compile
           package: glibc
-          buildmode: 3
+          buildmode: 2
        
         - task: compile
           package: zlib
