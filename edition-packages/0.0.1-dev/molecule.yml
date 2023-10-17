@@ -502,7 +502,7 @@ build:
           buildmode: 2
           
         - task: compile
-          package: psmic
+          package: psmisc
           buildmode: 1
           
         - task: compile
