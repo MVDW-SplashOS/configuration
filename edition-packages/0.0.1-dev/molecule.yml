@@ -515,4 +515,4 @@ build:
           
         - task: compile
           package: bash
-          buildmode: 1
+          buildmode: 2
