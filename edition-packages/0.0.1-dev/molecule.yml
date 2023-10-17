@@ -411,7 +411,7 @@ build:
           
         - task: compile
           package: xz
-          buildmode: 1
+          buildmode: 2
           
         - task: compile
           package: zstd
@@ -419,11 +419,7 @@ build:
           
         - task: compile
           package: file
-          buildmode: 1
-          
-        - task: compile
-          package: file
-          buildmode: 1
+          buildmode: 2
           
         - task: compile
           package: readline
