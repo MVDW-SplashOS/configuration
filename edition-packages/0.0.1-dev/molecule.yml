@@ -516,3 +516,182 @@ build:
         - task: compile
           package: bash
           buildmode: 2
+          
+    - task: change_enviroment
+      enviroment: chroot
+      build:
+        - task: compile
+          package: libtool
+          buildmode: 1
+          
+        - task: compile
+          package: gdbm
+          buildmode: 1
+          
+        - task: compile
+          package: gperf
+          buildmode: 1
+          
+        - task: compile
+          package: expat
+          buildmode: 1
+          
+        - task: compile
+          package: inetutils
+          buildmode: 1
+          
+        - task: compile
+          package: less
+          buildmode: 1
+          
+        - task: compile
+          package: perl
+          buildmode: 2
+          
+        - task: compile
+          package: xml_parser
+          buildmode: 1
+          
+        - task: compile
+          package: intltool
+          buildmode: 1
+          
+        - task: compile
+          package: autoconf
+          buildmode: 1
+          
+        - task: compile
+          package: automake
+          buildmode: 1
+          
+        - task: compile
+          package: openssl
+          buildmode: 1
+          
+        - task: compile
+          package: kmod
+          buildmode: 1
+          
+        - task: compile
+          package: elfutils
+          buildmode: 1
+          
+        - task: compile
+          package: libffi
+          buildmode: 1
+          
+        - task: compile
+          package: python
+          buildmode: 2
+          
+        - task: compile
+          package: wheel
+          buildmode: 1
+          
+        - task: compile
+          package: ninja
+          buildmode: 1
+          
+        - task: compile
+          package: meson
+          buildmode: 1
+          
+        - task: compile
+          package: coreutils
+          buildmode: 2
+          
+        - task: compile
+          package: check
+          buildmode: 1
+          
+        - task: compile
+          package: diffutils
+          buildmode: 1
+          
+        - task: compile
+          package: gawk
+          buildmode: 2
+          
+        - task: compile
+          package: findutils
+          buildmode: 2
+          
+        - task: compile
+          package: groff
+          buildmode: 1
+          
+        - task: compile
+          package: grub
+          buildmode: 1
+          
+        - task: compile
+          package: gzip
+          buildmode: 2
+          
+        - task: compile
+          package: iproute2
+          buildmode: 1
+          
+        - task: compile
+          package: kbd
+          buildmode: 1
+          
+        - task: compile
+          package: libpipeline
+          buildmode: 1
+          
+        - task: compile
+          package: make
+          buildmode: 2
+          
+        - task: compile
+          package: patch
+          buildmode: 2
+          
+        - task: compile
+          package: tar
+          buildmode: 2
+          
+        - task: compile
+          package: texinfo
+          buildmode: 2
+          
+        - task: compile
+          package: vim
+          buildmode: 1
+          
+        - task: compile
+          package: markupsafe
+          buildmode: 1
+          
+        - task: compile
+          package: jinja2
+          buildmode: 1
+          
+        - task: compile
+          package: systemd
+          buildmode: 1
+          
+        - task: compile
+          package: dbus
+          buildmode: 1
+          
+        - task: compile
+          package: man_db 
+          buildmode: 1
+          
+        - task: compile
+          package: procps_ng
+          buildmode: 1
+          
+        - task: compile
+          package: util_linux
+          buildmode: 2
+          
+        - task: compile
+          package: e2fsprogs
+          buildmode: 1
+          
+        - task: compile
+          package: linux
+          buildmode: 2
