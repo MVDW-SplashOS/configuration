@@ -386,7 +386,12 @@ build:
         - task: compile
           package: util_linux
           buildmode: 1
-    
+
+        - task: custom
+          commands:
+           - rm -rf /usr/share/{info,man,doc}/*
+           - find /usr/{lib,libexec} -name \*.la -delete
+           - rm -rf /tools
 
     # -------------------------------------------------------------------------
     #
