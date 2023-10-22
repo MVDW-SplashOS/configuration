@@ -351,6 +351,10 @@ build:
     - task: compile
       package: gcc
       buildmode: 3
+      
+    - task: custom
+      commands:
+        - chown -R root:root $LFS/{usr,lib,var,etc,bin,sbin,tools,lib64}
 
     # -------------------------------------------------------------------------
     #
