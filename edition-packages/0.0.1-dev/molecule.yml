@@ -354,7 +354,7 @@ build:
       
     - task: custom
       commands:
-        - chown -R root:root $LFS/{usr,lib,var,etc,bin,sbin,tools,lib64}
+        - chown -R root:root $splash_partition_root/{usr,lib,var,etc,bin,sbin,tools,lib64}
 
     # -------------------------------------------------------------------------
     #
