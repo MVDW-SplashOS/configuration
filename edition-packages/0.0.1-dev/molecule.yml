@@ -3,25 +3,25 @@ parentconfig: false
 
 packages:
     - package: "acl"
-      version: "2.3.1"
+      version: "2.3.2"
 
     - package: "attr"
-      version: "2.5.1"
+      version: "2.5.2"
 
     - package: "autoconf"
-      version: "2.71"
+      version: "2.72"
 
     - package: "automake"
       version: "1.16.5"
 
     - package: "bash"
-      version: "5.2.15"
+      version: "5.2.21"
 
     - package: "bc"
-      version: "6.2.4"
+      version: "6.7.5"
 
     - package: "binutils"
-      version: "2.40"
+      version: "2.42"
 
     - package: "bison"
       version: "3.8.2"
@@ -33,31 +33,31 @@ packages:
       version: "0.15.2"
 
     - package: "coreutils"
-      version: "9.1"
+      version: "9.4"
 
     - package: "dbus"
-      version: "1.14.6"
+      version: "1.14.10"
 
     - package: "dejagnu"
       version: "1.6.3"
 
     - package: "diffutils"
-      version: "3.9"
+      version: "3.10"
 
     - package: "e2fsprogs"
       version: "1.47.0"
 
     - package: "elfutils"
-      version: "0.188"
+      version: "0.190"
 
     - package: "expat"
-      version: "2.5.0"
+      version: "2.6.0"
 
     - package: "expect"
       version: "5.45.4"
 
     - package: "file"
-      version: "5.44"
+      version: "5.45"
 
     - package: "findutils"
       version: "4.9.0"
@@ -65,65 +65,68 @@ packages:
     - package: "flex"
       version: "2.6.4"
 
+    - package: "flit_core"
+      version: "3.9.0"
+
     - package: "gawk"
-      version: "5.2.1"
+      version: "5.3.0"
 
     - package: "gcc"
-      version: "12.2.0"
+      version: "13.2.0"
 
     - package: "gdbm"
       version: "1.23"
 
     - package: "gettext"
-      version: "0.21.1"
+      version: "0.22.4"
 
     - package: "glibc"
-      version: "2.37"
+      version: "2.39"
 
     - package: "gmp"
-      version: "6.2.1"
+      version: "6.3.0"
 
     - package: "gperf"
       version: "3.1"
 
     - package: "grep"
-      version: "3.8"
+      version: "3.11"
 
     - package: "groff"
-      version: "1.22.4"
+      version: "1.23.0"
 
     - package: "grub"
-      version: "2.06"
+      version: "2.12"
 
     - package: "gzip"
-      version: "1.12"
+      version: "1.13"
 
     - package: "iana_etc"
-      version: "20230202"
+      version: "20240125"
 
     - package: "inetutils"
-      version: "2.4"
+      version: "2.5"
 
     - package: "intltool"
       version: "0.51.0"
 
     - package: "iproute2"
-      version: "6.1.0"
+      version: "6.7.0"
 
     - package: "jinja2"
-      version: "3.1.2"
+      version: "3.1.3"
 
     - package: "kbd"
-      version: "2.5.1"
+      version: "2.6.4"
 
     - package: "kmod"
-      version: "30"
+      version: "31"
 
     - package: "less"
-      version: "608"
+      version: "643"
 
     - package: "libcap"
-      version: "2.67"
+      version: "2.69"
 
     - package: "libffi"
       version: "3.4.4"
@@ -134,62 +137,65 @@ packages:
     - package: "libtool"
       version: "2.4.7"
 
+    - package: "libxcrypt"
+      version: "4.4.36"
+
     - package: "linux"
-      version: "6.1.11"
+      version: "6.7.4"
 
     - package: "m4"
       version: "1.4.19"
 
     - package: "make"
-      version: "4.4"
+      version: "4.4.1"
 
     - package: "man_db"
-      version: "2.11.2"
+      version: "2.12.0"
 
     - package: "man_pages"
-      version: "6.03"
+      version: "6.06"
 
     - package: "markupsafe"
-      version: "2.1.2"
+      version: "2.1.5"
 
     - package: "meson"
-      version: "1.0.0"
+      version: "1.3.2"
 
     - package: "mpc"
       version: "1.3.1"
 
     - package: "mpfr"
-      version: "4.2.0"
+      version: "4.2.1"
 
     - package: "ncurses"
-      version: "6.4"
+      version: "6.4-20230520"
 
     - package: "ninja"
       version: "1.11.1"
 
     - package: "openssl"
-      version: "3.0.8"
+      version: "3.2.1"
 
     - package: "patch"
       version: "2.7.6"
 
     - package: "perl"
-      version: "5.36.0"
+      version: "5.38.2"
 
-    - package: "pkg_config"
-      version: "0.29.2"
+    - package: "pkgconf"
+      version: "2.1.1"
 
-    - package: "procps_ng"
-      version: "4.0.2"
+    - package: "procps"
+      version: "4.0.4"
 
     - package: "psmisc"
       version: "23.6"
 
     - package: "python"
-      version: "3.11.2"
+      version: "3.12.2"
 
     - package: "python_docs"
-      version: "3.11.2"
+      version: "3.12.2"
 
     - package: "readline"
       version: "8.2"
@@ -197,17 +203,20 @@ packages:
     - package: "sed"
       version: "4.9"
 
+    - package: "setuptools"
+      version: "69.1.0"
+
     - package: "shadow"
-      version: "4.13"
+      version: "4.14.5"
 
     - package: "systemd"
-      version: "252"
+      version: "255"
 
     - package: "systemd_man_pages"
-      version: "252-2"
+      version: "255"
 
     - package: "tar"
-      version: "1.34"
+      version: "1.35"
 
     - package: "tcl"
       version: "8.6.13"
@@ -216,34 +225,31 @@ packages:
       version: "8.6.13"
 
     - package: "texinfo"
-      version: "7.0.2"
+      version: "7.1"
 
     - package: "tzdata"
-      version: "2022g"
+      version: "2024a"
 
     - package: "util_linux"
-      version: "2.38.1"
+      version: "2.39.3"
 
     - package: "vim"
-      version: "9.0.1273"
+      version: "9.1.0041"
 
     - package: "wheel"
-      version: "0.38.4"
+      version: "0.42.0"
 
     - package: "xml_parser"
-      version: "2.46"
+      version: "2.47"
 
     - package: "xz"
-      version: "5.4.1"
-
-    - package: "yq"
-      version: "4.35.1"
+      version: "5.4.6"
 
     - package: "zlib"
-      version: "1.2.13"
+      version: "1.3.1"
 
     - package: "zstd"
-      version: "1.5.4"
+      version: "1.5.5"
 
 
 build:

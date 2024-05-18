@@ -64,6 +64,9 @@ findutils:
 flex:
     url: "https://github.com/westes/flex/releases/download/v2.6.4/flex-{VERSION}.tar.gz"
     subdir: true
+flit_core:
+    url: "https://pypi.org/packages/source/f/flit-core/flit_core-{VERSION}.tar.gz"
+    subdir: true
 gawk:
     url: "https://ftp.gnu.org/gnu/gawk/gawk-{VERSION}.tar.xz"
     subdir: true
@@ -133,8 +136,11 @@ libpipeline:
 libtool:
     url: "https://ftp.gnu.org/gnu/libtool/libtool-{VERSION}.tar.xz"
     subdir: true
+libxcrypt:
+    url: "https://github.com/besser82/libxcrypt/releases/download/v{VERSION}/libxcrypt-{VERSION}.tar.xz"
+    subdir: true
 linux:
-    url: "https://www.kernel.org/pub/linux/kernel/v6.x/linux-{VERSION}.tar.xz"
+    url: " https://www.kernel.org/pub/linux/kernel/v6.x/linux-{VERSION}.tar.xz"
     subdir: true
 m4:
     url: "https://ftp.gnu.org/gnu/m4/m4-{VERSION}.tar.xz"
@@ -161,7 +167,7 @@ mpfr:
     url: "https://ftp.gnu.org/gnu/mpfr/mpfr-{VERSION}.tar.xz"
     subdir: true
 ncurses:
-    url: "https://invisible-mirror.net/archives/ncurses/ncurses-{VERSION}.tar.gz"
+    url: "https://anduin.linuxfromscratch.org/LFS/ncurses-{VERSION}.tar.xz"
     subdir: true
 neofetch:
     url: "https://github.com/dylanaraps/neofetch/archive/7.1.0/neofetch-7.1.0.tar.gz"
@@ -178,9 +184,15 @@ patch:
 perl:
     url: "https://www.cpan.org/src/5.0/perl-{VERSION}.tar.xz"
     subdir: true
-pkg_config:
+pkg_config: 
     url: "https://pkg-config.freedesktop.org/releases/pkg-config-{VERSION}.tar.gz"
     subdir: "pkg-config-{VERSION}"
+pkgconf:
+    url: " https://distfiles.ariadne.space/pkgconf/pkgconf-{VERSION}.tar.xz"
+    subdir: true
+procps:
+    url: "https://sourceforge.net/projects/procps-ng/files/Production/procps-ng-{VERSION}.tar.xz"
+    subdir: true
 procps_ng:
     url: "https://sourceforge.net/projects/procps-ng/files/Production/procps-ng-{VERSION}.tar.xz"
     subdir: "procps-ng-{VERSION}"
@@ -198,6 +210,9 @@ readline:
     subdir: true
 sed:
     url: "https://ftp.gnu.org/gnu/sed/sed-{VERSION}.tar.xz"
+    subdir: true
+setuptools:
+    url: "https://pypi.org/packages/source/s/setuptools/setuptools-{VERSION}.tar.gz"
     subdir: true
 shadow:
     url: "https://github.com/shadow-maint/shadow/releases/download/{VERSION}/shadow-{VERSION}.tar.xz"
@@ -236,7 +251,7 @@ xml_parser:
     url: "https://cpan.metacpan.org/authors/id/T/TO/TODDR/XML-Parser-{VERSION}.tar.gz"
     subdir: "XML-Parser-{VERSION}"
 xz:
-    url: "https://tukaani.org/xz/xz-{VERSION}.tar.xz"
+    url: "https://github.com/tukaani-project/xz/releases/download/v{VERSION}/xz-{VERSION}.tar.xz"
     subdir: true
 yq:
     url: "https://github.com/mikefarah/yq/archive/v{VERSION}/yq-{VERSION}.tar.gz"
