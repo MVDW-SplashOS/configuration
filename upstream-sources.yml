@@ -190,9 +190,6 @@ pkg_config:
 pkgconf:
     url: " https://distfiles.ariadne.space/pkgconf/pkgconf-{VERSION}.tar.xz"
     subdir: true
-procps:
-    url: "https://sourceforge.net/projects/procps-ng/files/Production/procps-ng-{VERSION}.tar.xz"
-    subdir: true
 procps_ng:
     url: "https://sourceforge.net/projects/procps-ng/files/Production/procps-ng-{VERSION}.tar.xz"
     subdir: "procps-ng-{VERSION}"
