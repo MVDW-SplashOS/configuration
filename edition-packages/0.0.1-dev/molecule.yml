@@ -245,6 +245,9 @@ packages:
     - package: "xz"
       version: "5.4.6"
 
+    - package: "yq"
+      version: "4.35.1"
+
     - package: "zlib"
       version: "1.3.1"
 
