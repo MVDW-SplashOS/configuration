@@ -428,6 +428,10 @@ build:
           buildmode: 1
           
         - task: compile
+          package: bzip2
+          buildmode: 1
+
+        - task: compile
           package: xz
           buildmode: 2
           
@@ -466,7 +470,11 @@ build:
         - task: compile
           package: dejagnu
           buildmode: 1
-          
+
+        - task: compile
+          package: pkgconf
+          buildmode: 1
+
         - task: compile
           package: binutils
           buildmode: 3
@@ -494,7 +502,11 @@ build:
         - task: compile
           package: libcap
           buildmode: 1
-          
+
+        - task: compile
+          package: libxcrypt
+          buildmode: 1
+
         - task: compile
           package: shadow
           buildmode: 1
@@ -502,10 +514,6 @@ build:
         - task: compile
           package: gcc
           buildmode: 4
-          
-        - task: compile
-          package: pkg_config
-          buildmode: 1
           
         - task: compile
           package: ncurses
@@ -603,9 +611,17 @@ build:
           buildmode: 2
           
         - task: compile
+          package: flit_core
+          buildmode: 1
+
+        - task: compile
           package: wheel
           buildmode: 1
-          
+
+        - task: compile
+          package: setuptools
+          buildmode: 1
+
         - task: compile
           package: ninja
           buildmode: 1
