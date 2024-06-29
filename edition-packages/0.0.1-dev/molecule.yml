@@ -736,3 +736,26 @@ build:
         - task: compile
           package: linux
           buildmode: 2
+        
+        - task: custom
+          commands:
+           - cat > /etc/os-release << "EOF"
+            NAME="SplashOS"
+            PRETTY_NAME="SplashOS DEV-0.0.1 (Kokomi)""
+            ID="splashos"
+            VARIANT="Molecule"
+            VARIANT_ID="molecule"
+            VERSION="DEV-0.0.1 (Kokomi)"
+            VERSION_ID="dev-0.0.1"
+            VERSION_CODENAME="kokomi"
+            BUILD_ID="{BUILD_ID}"
+            HOME_URL="https://SplashOS.com"
+            DOCUMENTATION_URL="https://manual.SplashOS.com"
+            SUPPORT_URL="https://support.SplashOS.com"
+            BUG_REPORT_URL="https://bugs.SplashOS.com"
+            PRIVACY_POLICY_URL="https://SplashOS.com/privacy"
+            SUPPORT_END="1970-01-01"
+            LOGO="splashos-logo"
+            VENDOR_NAME="MVDW-Java"
+            VENDOR_URL="https://SplashOS.com"
+            EOF
