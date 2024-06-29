@@ -170,6 +170,9 @@ packages:
     - package: "ncurses"
       version: "6.4-20230520"
 
+    - package: "neofetch"
+      version: "7.1.0"
+
     - package: "ninja"
       version: "1.11.1"
 
@@ -725,7 +728,11 @@ build:
         - task: compile
           package: e2fsprogs
           buildmode: 1
-          
+
+        - task: compile
+          package: neofetch
+          buildmode: 1
+
         - task: compile
           package: linux
           buildmode: 2
