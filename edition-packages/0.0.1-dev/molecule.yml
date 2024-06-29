@@ -741,7 +741,7 @@ build:
           commands:
            - cat > /etc/os-release << "EOF"
             NAME="SplashOS"
-            PRETTY_NAME="SplashOS DEV-0.0.1 (Kokomi)""
+            PRETTY_NAME="SplashOS DEV-0.0.1 (Kokomi)"
             ID="splashos"
             VARIANT="Molecule"
             VARIANT_ID="molecule"
