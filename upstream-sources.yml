@@ -250,6 +250,9 @@ xz:
 yq:
   url: "https://github.com/mikefarah/yq/archive/v{VERSION}/yq-{VERSION}.tar.gz"
   subdir: true
+zed:
+  url: "https://github.com/zed-industries/zed/archive/v{VERSION}/zed-v{VERSION}.tar.gz"
+  subdir: true
 zlib:
   url: "https://zlib.net/fossils/zlib-{VERSION}.tar.gz"
   subdir: true
