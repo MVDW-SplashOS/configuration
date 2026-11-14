@@ -3,25 +3,25 @@ parentconfig: false
 
 packages:
     - package: "acl"
-      version: "2.3.2"
+      version: "2.4.0"
 
     - package: "attr"
-      version: "2.5.2"
+      version: "2.6.0"
 
     - package: "autoconf"
-      version: "2.72"
+      version: "2.73"
 
     - package: "automake"
-      version: "1.16.5"
+      version: "1.18.1"
 
     - package: "bash"
-      version: "5.2.21"
+      version: "5.3"
 
     - package: "bc"
-      version: "6.7.5"
+      version: "7.0.3"
 
     - package: "binutils"
-      version: "2.42"
+      version: "2.47"
 
     - package: "bison"
       version: "3.8.2"
@@ -33,139 +33,145 @@ packages:
       version: "0.15.2"
 
     - package: "coreutils"
-      version: "9.4"
+      version: "9.11"
 
     - package: "dbus"
-      version: "1.14.10"
+      version: "1.16.2"
 
     - package: "dejagnu"
       version: "1.6.3"
 
     - package: "diffutils"
-      version: "3.10"
+      version: "3.12"
 
     - package: "e2fsprogs"
-      version: "1.47.0"
+      version: "1.47.4"
 
     - package: "elfutils"
-      version: "0.190"
+      version: "0.195"
 
     - package: "expat"
-      version: "2.6.0"
+      version: "2.8.3"
 
     - package: "expect"
       version: "5.45.4"
 
     - package: "file"
-      version: "5.45"
+      version: "5.48"
 
     - package: "findutils"
-      version: "4.9.0"
+      version: "4.11.0"
 
     - package: "flex"
       version: "2.6.4"
 
     - package: "flit_core"
-      version: "3.9.0"
+      version: "4.0.2"
 
     - package: "gawk"
-      version: "5.3.0"
+      version: "5.4.1"
 
     - package: "gcc"
-      version: "13.2.0"
+      version: "16.2.0"
 
     - package: "gdbm"
-      version: "1.23"
+      version: "1.26"
 
     - package: "gettext"
-      version: "0.22.4"
+      version: "1.0"
 
     - package: "glibc"
-      version: "2.39"
+      version: "2.44"
 
     - package: "gmp"
       version: "6.3.0"
 
     - package: "gperf"
-      version: "3.1"
+      version: "3.3"
 
     - package: "grep"
-      version: "3.11"
+      version: "3.12"
 
     - package: "groff"
-      version: "1.23.0"
+      version: "1.24.1"
 
     - package: "grub"
       version: "2.12"
 
     - package: "gzip"
-      version: "1.13"
+      version: "1.14"
 
     - package: "iana_etc"
-      version: "20240125"
+      version: "20260805"
 
     - package: "inetutils"
-      version: "2.5"
+      version: "2.8"
 
     - package: "intltool"
       version: "0.51.0"
 
     - package: "iproute2"
-      version: "6.7.0"
+      version: "7.1.0"
 
     - package: "jinja2"
-      version: "3.1.3"
+      version: "3.1.6"
 
     - package: "kbd"
-      version: "2.6.4"
+      version: "2.10.0"
 
     - package: "kmod"
-      version: "31"
+      version: "34.2"
 
     - package: "less"
-      version: "643"
+      version: "704"
 
     - package: "libcap"
-      version: "2.69"
+      version: "2.78"
 
     - package: "libffi"
-      version: "3.4.4"
+      version: "3.8.0"
 
     - package: "libpipeline"
-      version: "1.5.7"
+      version: "1.5.8"
 
     - package: "libtool"
-      version: "2.4.7"
+      version: "2.6.2"
 
     - package: "libxcrypt"
-      version: "4.4.36"
+      version: "4.5.2"
 
     - package: "linux"
-      version: "6.7.4"
+      version: "7.1.8"
+
+    - package: "lz4"
+      version: "1.10.0"
 
     - package: "m4"
-      version: "1.4.19"
+      version: "1.4.21"
 
     - package: "make"
       version: "4.4.1"
 
     - package: "man_db"
-      version: "2.12.0"
+      version: "2.13.1"
 
     - package: "man_pages"
-      version: "6.06"
+      version: "6.18"
 
     - package: "markupsafe"
-      version: "2.1.5"
+      version: "3.0.3"
 
     - package: "meson"
-      version: "1.3.2"
+      version: "1.12.0"
 
     - package: "mpc"
       version: "1.4.1"
 
+    - package: "mpdecimal"
+      version: "4.0.1"
+
     - package: "mpfr"
-      version: "4.2.1"
+      version: "4.2.2"
 
     - package: "ncurses"
       version: "6.6"
@@ -174,46 +180,55 @@ packages:
       version: "7.1.0"
 
     - package: "ninja"
-      version: "1.11.1"
+      version: "1.13.2"
 
     - package: "openssl"
-      version: "3.2.1"
+      version: "4.0.1"
+
+    - package: "packaging"
+      version: "26.3"
 
     - package: "patch"
-      version: "2.7.6"
+      version: "2.8"
+
+    - package: "pcre2"
+      version: "10.47"
 
     - package: "perl"
-      version: "5.38.2"
+      version: "5.44.0"
 
     - package: "pkgconf"
-      version: "2.1.1"
+      version: "3.0.5"
 
     - package: "procps_ng"
-      version: "4.0.4"
+      version: "4.0.7"
 
     - package: "psmisc"
-      version: "23.6"
+      version: "23.7"
 
     - package: "python"
-      version: "3.12.2"
+      version: "3.14.7"
 
     - package: "python_docs"
       version: "3.12.2"
 
     - package: "readline"
-      version: "8.2"
+      version: "8.3"
 
     - package: "sed"
-      version: "4.9"
+      version: "4.10"
 
     - package: "setuptools"
-      version: "69.1.0"
+      version: "84.0.0"
 
     - package: "shadow"
-      version: "4.14.5"
+      version: "4.20.2"
+
+    - package: "sqlite"
+      version: "3530400"
 
     - package: "systemd"
-      version: "255"
+      version: "261.2"
 
     - package: "systemd_man_pages"
       version: "255"
@@ -222,25 +237,25 @@ packages:
       version: "1.35"
 
     - package: "tcl"
-      version: "8.6.13"
+      version: "8.6.18"
 
     - package: "tcl_docs"
       version: "8.6.13"
 
     - package: "texinfo"
-      version: "7.1"
+      version: "7.3"
 
     - package: "tzdata"
       version: "2024a"
 
     - package: "util_linux"
-      version: "2.39.3"
+      version: "2.42.2"
 
     - package: "vim"
-      version: "9.1.0041"
+      version: "9.2.1025"
 
     - package: "wheel"
-      version: "0.42.0"
+      version: "0.48.0"
 
     - package: "xml_parser"
       version: "2.47"
@@ -252,10 +267,10 @@ packages:
       version: "4.35.1"
 
     - package: "zlib"
-      version: "1.3.1"
+      version: "1.3.2"
 
     - package: "zstd"
-      version: "1.5.5"
+      version: "1.5.7"
 
 
 build:
@@ -392,6 +407,10 @@ build:
           buildmode: 1
 
         - task: compile
+          package: mpdecimal
+          buildmode: 1
+
+        - task: compile
           package: python
           buildmode: 1
 
@@ -439,6 +458,10 @@ build:
           buildmode: 2
           
         - task: compile
+          package: lz4
+          buildmode: 1
+
+        - task: compile
           package: zstd
           buildmode: 1
           
@@ -450,6 +473,10 @@ build:
           package: readline
           buildmode: 1
           
+        - task: compile
+          package: pcre2
+          buildmode: 1
+
         - task: compile
           package: m4
           buildmode: 2
@@ -610,11 +637,23 @@ build:
           buildmode: 1
           
         - task: compile
+          package: sqlite
+          buildmode: 1
+
+        - task: compile
+          package: mpdecimal
+          buildmode: 2
+
+        - task: compile
           package: python
           buildmode: 2
           
         - task: compile
           package: flit_core
+          buildmode: 1
+
+        - task: compile
+          package: packaging
           buildmode: 1
 
         - task: compile
