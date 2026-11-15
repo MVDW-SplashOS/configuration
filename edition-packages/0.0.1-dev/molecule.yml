@@ -500,7 +500,11 @@ build:
         - task: compile
           package: dejagnu
           buildmode: 1
-
+          
+        - task: compile
+          package: ninja
+          buildmode: 1
+          
         - task: compile
           package: pkgconf
           buildmode: 1
@@ -625,10 +629,6 @@ build:
           buildmode: 1
           
         - task: compile
-          package: kmod
-          buildmode: 1
-          
-        - task: compile
           package: elfutils
           buildmode: 1
           
@@ -670,6 +670,10 @@ build:
           
         - task: compile
           package: meson
+          buildmode: 1
+          
+        - task: compile
+          package: kmod
           buildmode: 1
           
         - task: compile
