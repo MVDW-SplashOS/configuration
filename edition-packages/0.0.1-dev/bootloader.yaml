@@ -1,0 +1,84 @@
+# ---------------------------------------------------------------------------
+# SplashOS "bootloader" edition
+#
+# A LinuxBoot-style graphical boot manager: a tiny read-only Linux system
+# whose init is a GTK4/libadwaita UI (splash-boot-manager) that lists and
+# boots other distros/OSes. NO systemd, NO dracut, NO initramfs, NO GRUB.
+#
+# Boot flow:
+#   firmware -> SplashOS kernel (drivers/fs built-in) -> read-only root
+#   -> seatd session -> cage (kiosk Wayland compositor)
+#   -> splash-boot-manager (GTK4/libadwaita UI)
+#      - Linux targets:  kexec -l <kernel> --initrd <...> --command-line <...>; kexec -e
+#      - foreign EFI (Windows/macOS): efibootmgr --bootnext <entry>; reboot
+#      - rescue tools: fsck, smartctl, lsblk/blkid, dmesg (read-only root)
+#
+# Kernel prerequisites (the defconfig kernel must be reworked for this):
+#   CONFIG_KEXEC=y, DRM/KMS drivers enabled (virtio-gpu etc.),
+#   CONFIG_FRAMEBUFFER_CONSOLE=y (also fixes the nomodeset boot hang),
+#   storage/filesystem built-ins (already present: virtio, ext4).
+#
+# parentconfig is molecule (the systemd-free base): distro.yaml is NOT in
+# this chain on purpose — this edition must not inherit systemd, dracut or
+# GRUB configuration.
+#
+# STATUS: skeleton — phases 2/3 packages are not packaged yet. Do NOT deploy
+# to syspkg until phase 1 builds end-to-end.
+# ---------------------------------------------------------------------------
+
+parentconfig: molecule
+
+packages:
+    # ---- phase 1: non-graphic boot core -----------------------------------
+    # udev without systemd (LFS' udev comes from systemd's source tree)
+    # NOTE: eudev BuildScripts package still missing — added when packaged.
+    # - package: "eudev"
+    #   version: "3.2.14"
+    - package: "kexec_tools"
+      version: "2.0.29"
+    - package: "efivar"
+      version: "39"
+    - package: "efibootmgr"
+      version: "18"
+    - package: "smartmontools"
+      version: "7.5"
+
+    # ---- phase 2: GTK4 + libadwaita stack (not packaged yet) ---------------
+    # glib, pango, cairo, harfbuzz, fribidi, gdk_pixbuf, graphene,
+    # fontconfig, freetype, libxml2, itstool? gtk4, libadwaita (+sassc),
+    # wayland, wayland_protocols, libxkbcommon
+
+    # ---- phase 3: kiosk session + custom app (not packaged yet) ------------
+    # mesa (llvmpipe GL), libinput, seatd, pixman, libliftoff, wlroots,
+    # cage, splash-boot-manager (new SplashOS source repo)
+
+build:
+    # Phase 1: tools that need the chroot toolchain only. Built AFTER the
+    # molecule base, inside the chroot.
+    - task: change_enviroment
+      enviroment: chroot
+      build:
+        - task: compile
+          package: kexec_tools
+          buildmode: 1
+
+        - task: compile
+          package: efivar
+          buildmode: 1
+
+        - task: compile
+          package: efibootmgr
+          buildmode: 1
+
+        - task: compile
+          package: smartmontools
+          buildmode: 1
+
+    # Phase 1 host-side: read-only boot entry for the boot manager itself.
+    # The kernel boots root=<this partition> ro init=<path to the manager>;
+    # no initramfs line, no GRUB menu generation (the manager IS the menu).
+    - task: custom
+      commands:
+       - |
+        : "phase 3 placeholder: emits the EFI/firmware entries for
+        splash-boot-manager once the graphical stack exists"
