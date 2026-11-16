@@ -776,7 +776,8 @@ build:
 
         - task: custom
           commands:
-           - cat > /etc/os-release << "EOF"
+           - |
+            cat > /etc/os-release << "EOF"
             NAME="SplashOS"
             PRETTY_NAME="SplashOS DEV-0.0.1 (Kokomi)"
             ID="splashos"
