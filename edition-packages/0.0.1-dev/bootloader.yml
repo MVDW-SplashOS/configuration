@@ -43,6 +43,11 @@ packages:
     - package: "smartmontools"
       version: "7.5"
 
+    # ---- toolchain: rust for splash-boot-manager (phase 3, Rust/GTK4) -----
+    # Bootstrap install of pre-built rustc/cargo binaries (no compilation).
+    - package: "rust"
+      version: "1.100.0"
+
     # ---- phase 2: GTK4 + libadwaita stack (not packaged yet) ---------------
     # glib, pango, cairo, harfbuzz, fribidi, gdk_pixbuf, graphene,
     # fontconfig, freetype, libxml2, itstool? gtk4, libadwaita (+sassc),
@@ -54,10 +59,15 @@ packages:
 
 build:
     # Phase 1: tools that need the chroot toolchain only. Built AFTER the
-    # molecule base, inside the chroot.
+    # molecule base, inside the chroot. The rust toolchain installs first
+    # (bootstrap binaries, no compilation) so phase 3 can build the UI.
     - task: change_enviroment
       enviroment: chroot
       build:
+        - task: compile
+          package: rust
+          buildmode: 1
+
         - task: compile
           package: kexec_tools
           buildmode: 1
