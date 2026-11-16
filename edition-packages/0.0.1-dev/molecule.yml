@@ -741,11 +741,7 @@ build:
         - task: compile
           package: jinja2
           buildmode: 1
-          
-        - task: compile
-          package: systemd
-          buildmode: 1
-          
+
         - task: compile
           package: dbus
           buildmode: 1
