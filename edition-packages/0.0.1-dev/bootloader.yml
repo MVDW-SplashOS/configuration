@@ -38,6 +38,8 @@ packages:
       version: "2.0.29"
     - package: "efivar"
       version: "39"
+    - package: "popt"
+      version: "1.19"
     - package: "efibootmgr"
       version: "18"
     - package: "smartmontools"
@@ -74,6 +76,10 @@ build:
 
         - task: compile
           package: efivar
+          buildmode: 1
+
+        - task: compile
+          package: popt
           buildmode: 1
 
         - task: compile
