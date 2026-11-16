@@ -31,6 +31,9 @@ check:
 coreutils:
   url: "https://ftpmirror.gnu.org/coreutils/coreutils-{VERSION}.tar.xz"
   subdir: true
+cpio:
+  url: "https://ftpmirror.gnu.org/cpio/cpio-{VERSION}.tar.gz"
+  subdir: true
 dbus:
   url: "https://dbus.freedesktop.org/releases/dbus/dbus-{VERSION}.tar.xz"
   subdir: true
@@ -39,6 +42,9 @@ dejagnu:
   subdir: true
 diffutils:
   url: "https://ftpmirror.gnu.org/diffutils/diffutils-{VERSION}.tar.xz"
+  subdir: true
+dracut:
+  url: "https://github.com/dracut-ng/dracut/archive/refs/tags/{VERSION}.tar.gz"
   subdir: true
 e2fsprogs:
   url: "https://downloads.sourceforge.net/project/e2fsprogs/e2fsprogs/v{VERSION}/e2fsprogs-{VERSION}.tar.gz"
