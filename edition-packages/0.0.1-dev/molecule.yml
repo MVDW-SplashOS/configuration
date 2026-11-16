@@ -35,9 +35,6 @@ packages:
     - package: "coreutils"
       version: "9.11"
 
-    - package: "cpio"
-      version: "2.15"
-
     - package: "dbus"
       version: "1.16.2"
 
@@ -46,9 +43,6 @@ packages:
 
     - package: "diffutils"
       version: "3.12"
-
-    - package: "dracut"
-      version: "112"
 
     - package: "e2fsprogs"
       version: "1.47.4"
@@ -232,12 +226,6 @@ packages:
 
     - package: "sqlite"
       version: "3530400"
-
-    - package: "systemd"
-      version: "261.2"
-
-    - package: "systemd_man_pages"
-      version: "261.2"
 
     - package: "tar"
       version: "1.35"
@@ -786,22 +774,6 @@ build:
           package: linux
           buildmode: 2
 
-        - task: compile
-          package: cpio
-          buildmode: 1
-
-        - task: compile
-          package: dracut
-          buildmode: 1
-
-        - task: custom
-          commands:
-           - |
-            echo "KEYMAP=us" > /etc/vconsole.conf
-            echo "LANG=C.UTF-8" > /etc/locale.conf
-            KVER=$(basename $(ls -d /lib/modules/*))
-            dracut --force --kver "$KVER" /boot/initramfs-"$KVER".img
-
         - task: custom
           commands:
            - cat > /etc/os-release << "EOF"
@@ -824,44 +796,3 @@ build:
             VENDOR_URL="https://SplashOS.com"
             EOF
 
-    # -------------------------------------------------------------------------
-    #
-    #      STEP 6: Post-build system configuration (host side)
-    #
-    # fstab (by UUID, so the entry survives device renumbering), hostname,
-    # hosts, and the SplashOS system's own GRUB configuration. Runs on the
-    # host against the mounted build partition.
-    # -------------------------------------------------------------------------
-
-    - task: custom
-      commands:
-       - |
-        rootdev=$(findmnt -nro SOURCE "$splash_partition_root")
-        # lsblk (util-linux, same package as findmnt) instead of blkid: not
-        # every build host carries blkid in PATH.
-        rootuuid=$(lsblk -no UUID "$rootdev")
-        if [ -z "$rootuuid" ]; then
-            echo "ERROR: could not determine root UUID for $rootdev" >&2
-            exit 1
-        fi
-        KVER=$(basename $(ls -d "$splash_partition_root"/lib/modules/*))
-        {
-            printf 'UUID=%s / ext4 defaults 1 1\n' "$rootuuid"
-            lsblk -no UUID,FSTYPE | awk '$2=="swap" {print $1}' | while read -r suuid; do
-                [ -n "$suuid" ] && printf 'UUID=%s none swap sw 0 0\n' "$suuid"
-            done
-        } > "$splash_partition_root/etc/fstab"
-        echo splashos > "$splash_partition_root/etc/hostname"
-        printf '127.0.0.1 localhost splashos\n::1 localhost\n' > "$splash_partition_root/etc/hosts"
-        mkdir -p "$splash_partition_root/boot/grub"
-        # nomodeset: the kernel currently hangs at the virtio-gpu/DRM console
-        # handoff without it (FRAMEBUFFER_CONSOLE is unset in the kernel
-        # config); drop it once that is fixed.
-        cat > "$splash_partition_root/boot/grub/grub.cfg" << EOF
-        set default=0
-        set timeout=5
-        menuentry "SplashOS 0.0.1-dev (Kokomi)" {
-            linux /boot/vmlinuz-$KVER-splashos-13.1-systemd root=UUID=$rootuuid ro nomodeset
-            initrd /boot/initramfs-$KVER.img
-        }
-        EOF

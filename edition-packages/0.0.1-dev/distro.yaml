@@ -1,0 +1,91 @@
+# ---------------------------------------------------------------------------
+# SplashOS "distro" edition
+#
+# Shared by every user-facing edition (server, workstation, ...). Chains on
+# the molecule base via parentconfig; SplashBuilder flattens the chain at
+# fetch time (parent tasks first), so this file only needs to contain what
+# molecule does not already provide.
+#
+# Contents = everything a real (bootable, serviceable) SplashOS install needs
+# beyond the minimal base:
+#   - systemd (init system) + cpio + dracut (initramfs generation)
+#   - the initramfs generation task
+#   - the host-side system configuration: fstab, hostname, hosts and the
+#     GRUB boot configuration
+#
+# Deliberately NOT here: the bootloader for the diagnostic/recovery edition
+# (bootloader.yaml) — it chains on molecule directly and must not inherit
+# GRUB config generation or systemd.
+# ---------------------------------------------------------------------------
+
+parentconfig: molecule
+
+packages:
+    - package: "systemd"
+      version: "261.2"
+
+    - package: "systemd_man_pages"
+      version: "261.2"
+
+    - package: "cpio"
+      version: "2.15"
+
+    - package: "dracut"
+      version: "112"
+
+build:
+    - task: change_enviroment
+      enviroment: chroot
+      build:
+        - task: compile
+          package: systemd
+          buildmode: 1
+
+        - task: compile
+          package: cpio
+          buildmode: 1
+
+        - task: compile
+          package: dracut
+          buildmode: 1
+
+        - task: custom
+          commands:
+           - |
+            echo "KEYMAP=us" > /etc/vconsole.conf
+            echo "LANG=C.UTF-8" > /etc/locale.conf
+            KVER=$(basename $(ls -d /lib/modules/*))
+            dracut --force --kver "$KVER" /boot/initramfs-"$KVER".img
+
+    - task: custom
+      commands:
+       - |
+        rootdev=$(findmnt -nro SOURCE "$splash_partition_root")
+        # lsblk (util-linux, same package as findmnt) instead of blkid: not
+        # every build host carries blkid in PATH.
+        rootuuid=$(lsblk -no UUID "$rootdev")
+        if [ -z "$rootuuid" ]; then
+            echo "ERROR: could not determine root UUID for $rootdev" >&2
+            exit 1
+        fi
+        KVER=$(basename $(ls -d "$splash_partition_root"/lib/modules/*))
+        {
+            printf 'UUID=%s / ext4 defaults 1 1\n' "$rootuuid"
+            lsblk -no UUID,FSTYPE | awk '$2=="swap" {print $1}' | while read -r suuid; do
+                [ -n "$suuid" ] && printf 'UUID=%s none swap sw 0 0\n' "$suuid"
+            done
+        } > "$splash_partition_root/etc/fstab"
+        echo splashos > "$splash_partition_root/etc/hostname"
+        printf '127.0.0.1 localhost splashos\n::1 localhost\n' > "$splash_partition_root/etc/hosts"
+        mkdir -p "$splash_partition_root/boot/grub"
+        # nomodeset: the kernel currently hangs at the virtio-gpu/DRM console
+        # handoff without it (FRAMEBUFFER_CONSOLE is unset in the kernel
+        # config); drop it once that is fixed.
+        cat > "$splash_partition_root/boot/grub/grub.cfg" << EOF
+        set default=0
+        set timeout=5
+        menuentry "SplashOS 0.0.1-dev (Kokomi)" {
+            linux /boot/vmlinuz-$KVER-splashos-13.1-systemd root=UUID=$rootuuid ro nomodeset
+            initrd /boot/initramfs-$KVER.img
+        }
+        EOF
