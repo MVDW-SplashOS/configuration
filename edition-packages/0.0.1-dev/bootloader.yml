@@ -157,7 +157,7 @@ packages:
     - package: "cage"
       version: "0.2.0"
     - package: "splash_boot_manager"
-      version: "0.1.4"
+      version: "0.1.5"
 
     # ---- toolchain: rust for splash-boot-manager (phase 3, Rust/GTK4) -----
     # Bootstrap install of pre-built rustc/cargo binaries (no compilation).
