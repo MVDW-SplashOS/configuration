@@ -22,9 +22,12 @@
 # this chain on purpose — this edition must not inherit systemd, dracut or
 # GRUB configuration.
 #
-# STATUS: phase 1 — the graphical stack (phases 2/3) is not packaged yet.
-# /sbin/init is a non-graphic dev placeholder (VFS + BLS pick + kexec) so the
-# built partition is bootable and the kexec path can be tested from GRUB.
+# STATUS: phase 1 boot core works end-to-end (tested from GRUB: immediate
+# default kexec, console menu fallback). Phases 2/3 (GTK4 + libadwaita +
+# cage/seatd/wlroots kiosk + splash-boot-manager) are packaged in this file;
+# the packages need to be repacked to syspkg from the updated BuildScripts +
+# SourceStream definitions before this edition builds end-to-end with the
+# graphical UI.
 # ---------------------------------------------------------------------------
 
 parentconfig: molecule
@@ -46,19 +49,86 @@ packages:
     - package: "smartmontools"
       version: "7.5"
 
+    # ---- phase 2: GTK4 + libadwaita stack ----------------------------------
+    # Dependency order is expressed in the build list below.
+    - package: "libpng"
+      version: "1.6.47"
+    - package: "glib"
+      version: "2.84.4"
+    - package: "libxml2"
+      version: "2.13.6"
+    - package: "freetype"
+      version: "2.13.3"
+    - package: "fribidi"
+      version: "1.0.16"
+    - package: "harfbuzz"
+      version: "10.4.0"
+    - package: "fontconfig"
+      version: "2.15.0"
+    - package: "pixman"
+      version: "0.44.2"
+    - package: "cairo"
+      version: "1.18.4"
+    - package: "graphene"
+      version: "1.10.8"
+    - package: "gdk_pixbuf"
+      version: "2.42.12"
+    - package: "pango"
+      version: "1.56.3"
+    - package: "libdrm"
+      version: "2.4.125"
+    - package: "wayland"
+      version: "1.23.1"
+    - package: "wayland_protocols"
+      version: "1.41"
+    - package: "libxkbcommon"
+      version: "1.8.1"
+    - package: "xkeyboard_config"
+      version: "2.44"
+    - package: "gtk4"
+      version: "4.16.12"
+    - package: "libadwaita"
+      version: "1.5.6"
+
+    # ---- phase 3: kiosk session + custom app -------------------------------
+    # mesa uses the LLVM-free softpipe driver for software GL.
+    - package: "mako"
+      version: "1.3.9"
+    - package: "mesa"
+      version: "24.3.4"
+    - package: "libevdev"
+      version: "1.13.4"
+    - package: "mtdev"
+      version: "1.1.7"
+    - package: "eudev"
+      version: "3.2.14"
+    - package: "libinput"
+      version: "1.27.1"
+    - package: "seatd"
+      version: "0.9.1"
+    - package: "libliftoff"
+      version: "0.5.0"
+    - package: "wlroots"
+      version: "0.17.4"
+    - package: "cage"
+      version: "0.2.0"
+    - package: "splash_boot_manager"
+      version: "0.1.0"
+
     # ---- toolchain: rust for splash-boot-manager (phase 3, Rust/GTK4) -----
     # Bootstrap install of pre-built rustc/cargo binaries (no compilation).
     - package: "rust"
       version: "1.100.0"
 
-    # ---- phase 2: GTK4 + libadwaita stack (not packaged yet) ---------------
+    # ---- phase 2: GTK4 + libadwaita stack (packaged - see BuildScripts) ----
     # glib, pango, cairo, harfbuzz, fribidi, gdk_pixbuf, graphene,
-    # fontconfig, freetype, libxml2, itstool? gtk4, libadwaita (+sassc),
-    # wayland, wayland_protocols, libxkbcommon
+    # fontconfig, freetype, libxml2, wayland, wayland_protocols, libxkbcommon
+    # (+ xkeyboard_config data, libpng)
 
-    # ---- phase 3: kiosk session + custom app (not packaged yet) ------------
-    # mesa (llvmpipe GL), libinput, seatd, pixman, libliftoff, wlroots,
-    # cage, splash-boot-manager (new SplashOS source repo)
+    # ---- phase 3: kiosk session + custom app (packaged) ---------------------
+    # mesa (softpipe software GL - no LLVM), libevdev, mtdev, eudev (libudev
+    # for libinput), libinput, seatd, libliftoff, wlroots, cage,
+    # splash_boot-manager (SplashBootManager repo, vendored crates)
 
 build:
     # Phase 1: tools that need the chroot toolchain only. Built AFTER the
@@ -159,6 +229,130 @@ build:
             gcc -O2 -I"$splash_partition_root/usr/include" -o "$splash_partition_root/usr/bin/superkey" "$splash_partition_root/usr/src/superkey.c"
             rm -f "$splash_partition_root/usr/src/superkey.c"
             ls -v -l "$splash_partition_root/usr/bin/superkey"
+
+        # ---- phase 2: GTK4 + libadwaita stack --------------------------------
+        # Dependency order. Everything builds in the chroot with the target
+        # toolchain; pkg-config resolves the stack incrementally.
+        - task: compile
+          package: libpng
+          buildmode: 1
+
+        - task: compile
+          package: glib
+          buildmode: 1
+
+        - task: compile
+          package: libxml2
+          buildmode: 1
+
+        - task: compile
+          package: freetype
+          buildmode: 1
+
+        - task: compile
+          package: fribidi
+          buildmode: 1
+
+        - task: compile
+          package: harfbuzz
+          buildmode: 1
+
+        - task: compile
+          package: fontconfig
+          buildmode: 1
+
+        - task: compile
+          package: pixman
+          buildmode: 1
+
+        - task: compile
+          package: cairo
+          buildmode: 1
+
+        - task: compile
+          package: graphene
+          buildmode: 1
+
+        - task: compile
+          package: gdk_pixbuf
+          buildmode: 1
+
+        - task: compile
+          package: pango
+          buildmode: 1
+
+        - task: compile
+          package: libdrm
+          buildmode: 1
+
+        - task: compile
+          package: wayland
+          buildmode: 1
+
+        - task: compile
+          package: wayland_protocols
+          buildmode: 1
+
+        - task: compile
+          package: libxkbcommon
+          buildmode: 1
+
+        - task: compile
+          package: xkeyboard_config
+          buildmode: 1
+
+        - task: compile
+          package: gtk4
+          buildmode: 1
+
+        - task: compile
+          package: libadwaita
+          buildmode: 1
+
+        # ---- phase 3: kiosk session + graphical boot manager ------------------
+        - task: compile
+          package: mako
+          buildmode: 1
+
+        - task: compile
+          package: mesa
+          buildmode: 1
+
+        - task: compile
+          package: libevdev
+          buildmode: 1
+
+        - task: compile
+          package: mtdev
+          buildmode: 1
+
+        - task: compile
+          package: eudev
+          buildmode: 1
+
+        - task: compile
+          package: libinput
+          buildmode: 1
+
+        - task: compile
+          package: seatd
+          buildmode: 1
+
+        - task: compile
+          package: libliftoff
+          buildmode: 1
+
+        - task: compile
+          package: wlroots
+          buildmode: 1
+
+        - task: compile
+          package: cage
+          buildmode: 1
+
+        - task: compile
+          package: splash_boot_manager
+          buildmode: 1
 
     # Phase 1 host-side: dev boot core for the boot manager itself. The
     # kernel boots root=<this partition> ro; no initramfs, no GRUB on the
@@ -295,6 +489,14 @@ build:
                 export XDG_RUNTIME_DIR=/run
                 export WAYLAND_DISPLAY=wayland-0
                 export GSK_RENDERER=cairo
+                export GSETTINGS_BACKEND=memory
+                # libinput enumerates input devices through the udev
+                # database: run eudev's udevd before the compositor.
+                if [ -x /usr/lib/udev/udevd ]; then
+                    /usr/lib/udev/udevd --daemon
+                    udevadm trigger --action=add --type=devices 2>/dev/null
+                    udevadm settle 2>/dev/null || true
+                fi
                 seatd -g root >/dev/null 2>&1 &
                 seatd_pid=$!
                 sleep 1
