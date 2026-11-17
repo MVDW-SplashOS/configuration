@@ -673,6 +673,11 @@ build:
                 # configure - the app no longer requests fullscreen itself.
                 export GSK_RENDERER=cairo
                 export GSETTINGS_BACKEND=memory
+                # Print every xdg configure event with its size to the
+                # console: the wl_shm pool is sized from the configured
+                # surface dimensions, and a garbage size makes GDK abort
+                # (ftruncate EINVAL / 'Cairo image surface invalid value').
+                export GDK_DEBUG=events
                 # GTK warns (and slows down) without a machine id.
                 [ -e /etc/machine-id ] || : > /etc/machine-id
                 # NOTE: do NOT export WAYLAND_DISPLAY here - wlroots'
