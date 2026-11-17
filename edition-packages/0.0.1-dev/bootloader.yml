@@ -510,6 +510,7 @@ build:
         # keymaps use shm_open (POSIX shared memory = /dev/shm), as do
         # GTK clients; without the mount every shm_open fails and cage
         # aborts with "Failed to allocate shm file for format table".
+        mkdir -p /dev/shm
         mountpoint -q /dev/shm || mount -t tmpfs -o mode=1777,nosuid,nodev tmpfs /dev/shm
 
         echo
