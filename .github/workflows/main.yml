@@ -69,6 +69,9 @@ jobs:
           echo "::error::SPLASHOS_SFTP_PRIVATE_KEY is not a valid OpenSSH private key."
           exit 1
         fi
+        # Auth diagnostics: fingerprint of the stored key (public half only,
+        # safe to log) for comparing with the other repos' secrets.
+        echo "stored key fingerprint: $(ssh-keygen -lf ~/.ssh/splashos_sftp_key)"
 
     - name: Pin SFTP host key
       run: |
@@ -96,6 +99,11 @@ jobs:
       env:
         SFTP_USER: ${{ secrets.SPLASHOS_SFTP_USER }}
       run: |
+        # Auth diagnostics: length + hash of the username (the value itself
+        # stays masked by GitHub) to compare with the other repos' secrets.
+        echo "username length: ${#SFTP_USER}"
+        echo "username sha256: $(printf %s "$SFTP_USER" | sha256sum | cut -d' ' -f1)"
+
         python - <<'EOF'
         import os, paramiko, posixpath
 
