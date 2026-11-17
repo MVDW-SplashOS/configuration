@@ -592,19 +592,22 @@ build:
 
         # ---- boot options menu (Super key was held) ------------------------
         # superkey probes the *current* key state of /dev/input/event*.
-        # USB HID devices enumerate asynchronously (~1s into the boot on
-        # VMs), so wait briefly for the first event device before
-        # probing; PS/2 keyboards register immediately (no delay there).
-        probe_waits=0
-        while [ ! -e /dev/input/event0 ] && [ "$probe_waits" -lt 40 ]; do
-            sleep 0.05
-            probe_waits=$((probe_waits + 1))
-        done
+        # USB HID keyboards enumerate ~1s into the boot, and a Super held
+        # since power-on must still be DOWN in the evdev state when
+        # superkey reads it. Probe in a bounded loop: check every 100ms
+        # for up to 2s, exiting as soon as the key is detected. PS/2
+        # keyboards register instantly and are detected on the first
+        # probe; the added default-boot cost is the tail of the window.
         sk_status=1
-        if [ -x /usr/bin/superkey ]; then
-            /usr/bin/superkey >/dev/null 2>&1
-            sk_status=$?
-        fi
+        probe_tick=0
+        while [ "$probe_tick" -lt 20 ]; do
+            if [ -x /usr/bin/superkey ] && /usr/bin/superkey >/dev/null 2>&1; then
+                sk_status=0
+                break
+            fi
+            sleep 0.1
+            probe_tick=$((probe_tick + 1))
+        done
         if [ "$sk_status" -eq 0 ]; then
             echo "  Super key held - boot options"
             echo
