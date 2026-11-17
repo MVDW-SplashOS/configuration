@@ -143,6 +143,15 @@ packages:
       version: "0.9.1"
     - package: "libliftoff"
       version: "0.5.0"
+
+    # wlroots' DRM backend requires the hwdata pkg-config file (to locate
+    # pnp.ids) and libdisplay-info (EDID parsing; its git-wrap fallback
+    # can't work in the chroot).
+    - package: "hwdata"
+      version: "0.390"
+    - package: "libdisplay-info"
+      version: "0.2.0"
+
     - package: "wlroots"
       version: "0.17.4"
     - package: "cage"
@@ -428,6 +437,16 @@ build:
 
         - task: compile
           package: libliftoff
+          buildmode: 1
+
+        # wlroots' DRM backend requires hwdata (pnp.ids via pkg-config)
+        # and libdisplay-info (EDID parsing).
+        - task: compile
+          package: hwdata
+          buildmode: 1
+
+        - task: compile
+          package: libdisplay-info
           buildmode: 1
 
         - task: compile

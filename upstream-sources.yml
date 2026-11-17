@@ -394,6 +394,12 @@ eudev:
 libinput:
   url: "https://gitlab.freedesktop.org/libinput/libinput/-/archive/{VERSION}/libinput-{VERSION}.tar.gz"
   subdir: true
+hwdata:
+  url: "https://github.com/vcrhonek/hwdata/archive/refs/tags/v{VERSION}.tar.gz"
+  subdir: true
+libdisplay-info:
+  url: "https://gitlab.freedesktop.org/emersion/libdisplay-info/-/archive/{VERSION}/libdisplay-info-{VERSION}.tar.gz"
+  subdir: true
 seatd:
   url: "https://git.sr.ht/~kennylevinsen/seatd/archive/{VERSION}.tar.gz"
   subdir: true
