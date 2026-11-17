@@ -600,7 +600,12 @@ build:
             sleep 0.05
             probe_waits=$((probe_waits + 1))
         done
-        if [ -x /usr/bin/superkey ] && /usr/bin/superkey >/dev/null 2>&1; then
+        sk_status=1
+        if [ -x /usr/bin/superkey ]; then
+            /usr/bin/superkey >/dev/null 2>&1
+            sk_status=$?
+        fi
+        if [ "$sk_status" -eq 0 ]; then
             echo "  Super key held - boot options"
             echo
 
@@ -657,6 +662,10 @@ build:
             kexec_entry "${local_menu[$((choice-1))]}"
             echo
             exec /bin/bash
+        else
+            # Diagnostic: 1 = key simply not held at probe time, other
+            # non-zero values point at a superkey probe error.
+            echo "  superkey: probe exit $sk_status (1 = not held)"
         fi
 
         # ---- default boot: IMMEDIATELY, no timeout -------------------------
