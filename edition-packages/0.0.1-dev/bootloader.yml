@@ -461,6 +461,15 @@ build:
           package: splash_boot_manager
           buildmode: 1
 
+        # The picker UI needs at least one font: Pango/GTK compute garbage
+        # window geometry with an empty fontconfig and abort at the first
+        # frame. Appended last so the chroot compile anchors of the
+        # existing packages (eudev=40 .. splash_boot_manager=48) are
+        # unchanged; the font lands at anchor 49.
+        - task: compile
+          package: dejavu_fonts
+          buildmode: 1
+
     # Phase 1 host-side: dev boot core for the boot manager itself. The
     # kernel boots root=<this partition> ro; no initramfs, no GRUB on the
     # target (the manager IS the menu).
