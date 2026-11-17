@@ -153,7 +153,7 @@ packages:
       version: "0.2.0"
 
     - package: "wlroots"
-      version: "0.17.4"
+      version: "0.18.2"
     - package: "cage"
       version: "0.2.0"
     - package: "splash_boot_manager"
