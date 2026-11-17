@@ -351,14 +351,6 @@ build:
 
         # ---- phase 3: kiosk session + graphical boot manager ------------------
         - task: compile
-          package: mako
-          buildmode: 1
-
-        - task: compile
-          package: mesa
-          buildmode: 1
-
-        - task: compile
           package: libevdev
           buildmode: 1
 
