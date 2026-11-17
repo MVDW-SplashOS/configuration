@@ -313,6 +313,21 @@ build:
           package: xkeyboard_config
           buildmode: 1
 
+        # gtk4 requires epoxy, libjpeg and libtiff unconditionally (no
+        # required:false on those dependency() calls); jpeg/tiff are the
+        # non-cmake releases (the chroot has no cmake).
+        - task: compile
+          package: jpeg
+          buildmode: 1
+
+        - task: compile
+          package: tiff
+          buildmode: 1
+
+        - task: compile
+          package: libepoxy
+          buildmode: 1
+
         - task: compile
           package: gtk4
           buildmode: 1
