@@ -537,6 +537,13 @@ build:
         id="$(basename "$entry" .conf)"
         echo "  Booting the default entry \"$id\" (hold Super at power-on for boot options)"
         echo
+        # Splash logo on the framebuffer: hides the text console and keeps
+        # the logo until kexec replaces the screen. Static asset (nframes 1);
+        # the animated GIF plays in the graphical UI and later plymouth.
+        if [ -x /usr/bin/splash-logo ] \
+           && [ -r /usr/share/splashos/boot-logo.raw ]; then
+            /usr/bin/splash-logo || true
+        fi
         kexec_entry "$entry"
         echo
         exec /bin/bash
