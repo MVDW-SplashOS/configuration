@@ -505,6 +505,13 @@ build:
         # silently die), so mount /run as tmpfs.
         mountpoint -q /run || mount -t tmpfs -o mode=0755,nosuid,nodev tmpfs /run
 
+        # /dev/shm: devtmpfs does NOT provide it - it must be mounted
+        # separately. wlroots' linux-dmabuf format table and keyboard
+        # keymaps use shm_open (POSIX shared memory = /dev/shm), as do
+        # GTK clients; without the mount every shm_open fails and cage
+        # aborts with "Failed to allocate shm file for format table".
+        mountpoint -q /dev/shm || mount -t tmpfs -o mode=1777,nosuid,nodev tmpfs /dev/shm
+
         echo
         echo "  Splash Boot Manager (dev init)"
         echo
@@ -644,6 +651,19 @@ build:
                     /usr/sbin/udevd --daemon
                     udevadm trigger --action=add --type=devices 2>/dev/null
                     udevadm settle 2>/dev/null || true
+                    # Diagnostics: libinput enumerates input devices from
+                    # the udev database (/run/udev/data) - zero records
+                    # there means cage starts with no keyboard and the
+                    # wlroots no-input-devices check aborts the backend.
+                    udev_records=$(ls /run/udev/data 2>/dev/null | wc -l)
+                    echo "  udev: $udev_records device records in /run/udev/data"
+                    if [ "$udev_records" -eq 0 ]; then
+                        echo "  udev: retrying trigger/settle..."
+                        udevadm trigger --action=add 2>/dev/null
+                        udevadm settle 2>/dev/null || true
+                        udev_records=$(ls /run/udev/data 2>/dev/null | wc -l)
+                        echo "  udev: $udev_records records after retry"
+                    fi
                 fi
                 seatd -g root >/run/seatd.log 2>&1 &
                 seatd_pid=$!
