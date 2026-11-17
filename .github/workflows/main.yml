@@ -81,25 +81,53 @@ jobs:
           exit 1
         fi
 
-    - name: Build the SFTP batch and upload
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.13"
+
+    - name: SFTP upload via paramiko
       env:
         SFTP_USER: ${{ secrets.SPLASHOS_SFTP_USER }}
       run: |
-        # mkdir lines first (dash-prefixed: "already exists" is not an error)
-        while read -r f; do
-          [ -n "$f" ] || continue
-          echo "-mkdir /splashos_syspkg/configs/$(dirname "$f")" >> sftp-batch.txt
-        done < deploy.list
-        while read -r f; do
-          [ -n "$f" ] || continue
-          echo "put \"$f\" \"/splashos_syspkg/configs/$f\"" >> sftp-batch.txt
-        done < deploy.list
-        echo "batch:"; cat sftp-batch.txt
+        python - <<'EOF'
+        import os, paramiko, posixpath
 
-        sftp -b sftp-batch.txt -P 221 \
-             -i ~/.ssh/splashos_sftp_key \
-             -o StrictHostKeyChecking=yes \
-             "$SFTP_USER@iloot.it"
+        with open("deploy.list") as f:
+            files = [l.strip() for l in f if l.strip()]
+
+        with paramiko.SSHClient() as ssh:
+            # pin the host key: the runner's known_hosts is pre-populated by
+            # the "Pin SFTP host key" step
+            ssh.load_system_host_keys()
+            ssh.connect("iloot.it", port=221,
+                        username=os.environ["SFTP_USER"],
+                        key_filename=os.path.expanduser(
+                            "~/.ssh/splashos_sftp_key"),
+                        look_for_keys=False, allow_agent=False)
+            sftp = ssh.open_sftp()
+            print("connected to iloot.it:221")
+
+            made = set()
+            for f in files:
+                remote = "/splashos_syspkg/configs/" + f
+                d = posixpath.dirname(remote)
+                cur = ""
+                for part in d.split("/"):
+                    if not part:
+                        cur = "/"
+                        continue
+                    cur = cur.rstrip("/") + "/" + part
+                    if cur in made:
+                        continue
+                    try:
+                        sftp.stat(cur)
+                    except IOError:
+                        sftp.mkdir(cur)
+                    made.add(cur)
+                sftp.put(f, remote)
+                print(f"uploaded {f} -> {remote}")
+        EOF
 
     - name: Verify deployed files on the origin (cache-busted)
       run: |
