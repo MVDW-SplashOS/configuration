@@ -91,39 +91,116 @@ build:
           package: smartmontools
           buildmode: 1
 
-    # Phase 1 host-side: non-graphic dev boot core for the boot manager
-    # itself. The kernel boots root=<this partition> ro; no initramfs, no GRUB
-    # on the target (the manager IS the menu).
+        # superkey - evdev probe for "is a Super (Windows) key held?". Used
+        # by /sbin/init at power-on: Super held -> boot options menu,
+        # Super not held -> kexec the default BLS entry immediately. Reads
+        # the current key state (EVIOCGKEY), not the event stream, so it
+        # works no matter when the key was pressed. EVIOCGKEY is an ioctl,
+        # which bash cannot do, hence this tiny helper. Kernel input
+        # headers come from the linux-headers build (buildmode 1).
+        # Paths are $splash_partition_root-prefixed so the same task text
+        # also works host-side (SplashBootManager/install-test-entries.sh
+        # evals it to reinstall boot tools without a rebuild).
+        - task: custom
+          commands:
+           - |
+            echo "Building the superkey boot probe..."
+            mkdir -p "$splash_partition_root/usr/src"
+            cat > "$splash_partition_root/usr/src/superkey.c" << "EOF"
+            /* superkey - exit 0 when a Super (Windows) key is currently held,
+             * exit 1 when it is not (or no input devices exist). */
+            #include <dirent.h>
+            #include <fcntl.h>
+            #include <limits.h>
+            #include <stdio.h>
+            #include <string.h>
+            #include <sys/ioctl.h>
+            #include <unistd.h>
+            #include <linux/input.h>
+            #include <linux/input-event-codes.h>
+
+            int main(void)
+            {
+                DIR *dir = opendir("/dev/input");
+                if (!dir) {
+                    perror("superkey: /dev/input");
+                    return 1;
+                }
+
+                struct dirent *d;
+                while ((d = readdir(dir)) != NULL) {
+                    if (strncmp(d->d_name, "event", 5) != 0)
+                        continue;
+
+                    char path[PATH_MAX];
+                    snprintf(path, sizeof(path), "/dev/input/%s", d->d_name);
+
+                    int fd = open(path, O_RDONLY | O_NONBLOCK);
+                    if (fd < 0)
+                        continue;
+
+                    unsigned char keybits[(KEY_MAX / 8) + 1] = { 0 };
+                    if (ioctl(fd, EVIOCGKEY(sizeof(keybits)), keybits) >= 0) {
+                        int left = keybits[KEY_LEFTMETA / 8] & (1 << (KEY_LEFTMETA % 8));
+                        int right = keybits[KEY_RIGHTMETA / 8] & (1 << (KEY_RIGHTMETA % 8));
+                        if (left || right) {
+                            printf("superkey: %s: Super key held\n", path);
+                            close(fd);
+                            closedir(dir);
+                            return 0;
+                        }
+                    }
+                    close(fd);
+                }
+                closedir(dir);
+                return 1;
+            }
+            EOF
+            gcc -O2 -I"$splash_partition_root/usr/include" -o "$splash_partition_root/usr/bin/superkey" "$splash_partition_root/usr/src/superkey.c"
+            rm -f "$splash_partition_root/usr/src/superkey.c"
+            ls -v -l "$splash_partition_root/usr/bin/superkey"
+
+    # Phase 1 host-side: dev boot core for the boot manager itself. The
+    # kernel boots root=<this partition> ro; no initramfs, no GRUB on the
+    # target (the manager IS the menu).
     #
-    # The graphical manager (GTK4/libadwaita, SplashBootManager repo) is not
-    # packaged yet, so /sbin/init is a phase-1 placeholder that does the
-    # non-graphic part of the boot flow: mount the virtual filesystems, pick
-    # the default BLS entry (loader.conf default/timeout) and kexec it, with
-    # a rescue shell fallback. The packaged manager replaces this file
-    # (init=<manager binary>).
+    # Boot flow:
+    #   1. mount the virtual filesystems (devtmpfs is auto-mounted by the
+    #      kernel, CONFIG_DEVTMPFS_MOUNT)
+    #   2. scan /loader/entries/*.conf + loader.conf (BLS type 1)
+    #   3. probe the Super key with /usr/bin/superkey (EVIOCGKEY state, no
+    #      timing race):
+    #        - Super NOT held: kexec the default entry IMMEDIATELY - no
+    #          countdown, the graphical stack never starts
+    #        - Super held: open the boot options menu. The graphical UI
+    #          (splash-boot-manager under cage via seatd) when the graphical
+    #          stack is packaged (phase 3), a console fallback menu until
+    #          then. splash-boot-manager is launched with --menu: no
+    #          countdown, the entries list only - the user picks, kexec runs.
+    # The packaged manager eventually replaces this init entirely.
     #
     # Entry DATA (loader/entries/*.conf for the OSes installed on a specific
-    # machine) is machine-specific and is NOT written here — it is installed
+    # machine) is machine-specific and is NOT written here - it is installed
     # after the build by SplashBootManager/install-test-entries.sh.
     - task: custom
       commands:
        - |
-        echo "Phase 1 boot core: installing dev init (graphical UI pending)..."
+        echo "Phase 1 boot core: installing dev init..."
         install -v -m755 -d "$splash_partition_root/sbin"
         cat > "$splash_partition_root/sbin/init" << "EOF"
         #!/bin/bash
         # splash-boot-manager: phase 1 dev init (placeholder).
-        # The graphical manager (SplashBootManager repo) is not packaged yet;
-        # this is the non-graphic boot core so the boot-manager partition is
-        # actually testable. The packaged manager replaces this file.
+        # See the bootloader edition config for the boot flow; the packaged
+        # graphical manager replaces this file.
         mount -t proc proc /proc 2>/dev/null
         mount -t sysfs sysfs /sys 2>/dev/null
         mountpoint -q /dev || mount -t devtmpfs devtmpfs /dev 2>/dev/null
 
         echo
-        echo "  Splash Boot Manager - phase 1 (dev init, graphical UI pending)"
+        echo "  Splash Boot Manager (dev init)"
         echo
 
+        # ---- BLS boot tree ------------------------------------------------
         shopt -s nullglob
         entries=(/loader/entries/*.conf)
         shopt -u nullglob
@@ -133,7 +210,7 @@ build:
         fi
 
         # loader.conf: default entry id (BLS glob-style, trailing * allowed)
-        # and menu timeout in seconds.
+        # and menu timeout in seconds (only used by the graphical UI).
         default=""
         timeout=5
         if [ -r /loader/loader.conf ]; then
@@ -145,64 +222,121 @@ build:
             done < /loader/loader.conf
         fi
 
-        # Pick the default entry: exact id first, then id prefix (mirrors
-        # src/bls.rs default_entry: exact / ends_with / starts_with),
-        # otherwise the first entry.
-        entry=""
-        for pass in exact prefix; do
-            for e in "${entries[@]}"; do
-                id="$(basename "$e" .conf)"
-                if [ "$pass" = exact ] && [ "$id" = "$default" ]; then
-                    entry="$e"
-                    break 2
-                elif [ "$pass" = prefix ]; then
-                    case "$id" in
-                        "$default"*) entry="$e"; break 2 ;;
-                    esac
-                fi
-            done
-        done
-        [ -n "$entry" ] || entry="${entries[0]}"
-
         # BLS type 1: "key value" per line (matches src/bls.rs; only the
         # first initrd is used by this placeholder).
-        title=""
-        kernel=""
-        initrd=""
-        options=""
-        while read -r key value; do
-            case "$key" in
-                title)   title="$value" ;;
-                linux)   kernel="$value" ;;
-                initrd)  initrd="$value" ;;
-                options) options="$options $value" ;;
-            esac
-        done < "$entry"
+        parse_entry() {
+            entry_title=""
+            entry_kernel=""
+            entry_initrd=""
+            entry_options=""
+            while read -r key value; do
+                case "$key" in
+                    title)   entry_title="$value" ;;
+                    linux)   entry_kernel="$value" ;;
+                    initrd)  entry_initrd="$value" ;;
+                    options) entry_options="$entry_options $value" ;;
+                esac
+            done < "$1"
+        }
 
-        id="$(basename "$entry" .conf)"
-        echo "  Default entry: ${title:-$id} ($id)"
-        echo "    kernel:   $kernel"
-        [ -n "$initrd" ] && echo "    initrd:   $initrd"
-        [ -n "$options" ] && echo "    cmdline:  ${options# }"
-        echo
-        printf "  Booting in %ss - press Enter for a rescue shell... " "$timeout"
-        if read -t "$timeout" -r; then
+        kexec_entry() {
+            parse_entry "$1"
+            local id cmdline kexec_args
+            id="$(basename "$1" .conf)"
+            cmdline="${entry_options# }"
+            echo "  Booting \"${entry_title:-$id}\" ($id)"
+            echo "    kernel:   $entry_kernel"
+            [ -n "$entry_initrd" ] && echo "    initrd:   $entry_initrd"
+            [ -n "$cmdline" ] && echo "    cmdline:  $cmdline"
+            kexec_args=(kexec -l "$entry_kernel" --command-line="$cmdline")
+            [ -n "$entry_initrd" ] && kexec_args+=(--initrd="$entry_initrd")
+            if ! "${kexec_args[@]}"; then
+                echo "  kexec -l failed."
+                return 1
+            fi
+            kexec -e
+            echo "  kexec failed, dropping to a rescue shell."
+            return 1
+        }
+
+        # Default entry pick: exact id first, then id prefix (mirrors
+        # src/bls.rs default_entry), otherwise the first entry.
+        pick_default() {
+            local pass e id
+            for pass in exact prefix; do
+                for e in "${entries[@]}"; do
+                    id="$(basename "$e" .conf)"
+                    if [ "$pass" = exact ] && [ "$id" = "$default" ]; then
+                        printf '%s' "$e"
+                        return 0
+                    elif [ "$pass" = prefix ]; then
+                        case "$id" in
+                            "$default"*) printf '%s' "$e"; return 0 ;;
+                        esac
+                    fi
+                done
+            done
+            printf '%s' "${entries[0]}"
+        }
+
+        # ---- boot options menu (Super key was held) ------------------------
+        if [ -x /usr/bin/superkey ] && /usr/bin/superkey >/dev/null 2>&1; then
+            echo "  Super key held - boot options"
+            echo
+
+            # Graphical UI when the phase-3 stack is packaged: seatd session
+            # -> cage (kiosk Wayland) -> splash-boot-manager --menu (no
+            # countdown, entries list only). Falls back to the console menu
+            # below while the graphical stack is not built yet / on failure.
+            if [ -x /usr/bin/splash-boot-manager ] && [ -x /usr/bin/cage ] \
+               && [ -x /usr/sbin/seatd ]; then
+                echo "  Starting the graphical boot options UI..."
+                mkdir -p /run
+                export XDG_RUNTIME_DIR=/run
+                export WAYLAND_DISPLAY=wayland-0
+                export GSK_RENDERER=cairo
+                seatd -g root >/dev/null 2>&1 &
+                seatd_pid=$!
+                sleep 1
+                cage -d -- /usr/bin/splash-boot-manager --menu
+                echo "  Graphical UI exited (status $?) , falling back to the console menu."
+                echo
+                kill -TERM "$seatd_pid" 2>/dev/null
+            fi
+
+            echo "  Boot options:"
+            echo
+            local_menu=()
+            for e in "${entries[@]}"; do
+                parse_entry "$e"
+                local_menu+=("$e")
+            done
+            n=0
+            for e in "${local_menu[@]}"; do
+                n=$((n+1))
+                parse_entry "$e"
+                printf "  [%d] %s\n" "$n" "${entry_title:-$(basename "$e" .conf)}"
+            done
+            echo
+            printf "  Boot entry number [1-%d]: " "$n"
+            if read -r choice && [ "$choice" -ge 1 ] 2>/dev/null \
+               && [ "$choice" -le "$n" ] 2>/dev/null; then
+                :
+            else
+                choice=1
+            fi
+            kexec_entry "${local_menu[$((choice-1))]}"
             echo
             exec /bin/bash
         fi
-        echo
-        echo
 
-        [ -n "$options" ] && cmdline="${options# }" || cmdline=""
-        kexec_args=(kexec -l "$kernel" --command-line="$cmdline")
-        [ -n "$initrd" ] && kexec_args+=(--initrd="$initrd")
-
-        if ! "${kexec_args[@]}"; then
-            echo "  kexec -l failed, dropping to a rescue shell."
-            exec /bin/bash
-        fi
-        kexec -e
-        echo "  kexec failed, dropping to a rescue shell."
+        # ---- default boot: IMMEDIATELY, no timeout -------------------------
+        entry="$(pick_default)"
+        id="$(basename "$entry" .conf)"
+        echo "  Booting the default entry \"$id\" (hold Super at power-on for boot options)"
+        echo
+        kexec_entry "$entry"
+        echo
         exec /bin/bash
         EOF
         chmod -v 755 "$splash_partition_root/sbin/init"
