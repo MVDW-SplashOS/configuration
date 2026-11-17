@@ -22,8 +22,9 @@
 # this chain on purpose — this edition must not inherit systemd, dracut or
 # GRUB configuration.
 #
-# STATUS: skeleton — phases 2/3 packages are not packaged yet. Do NOT deploy
-# to syspkg until phase 1 builds end-to-end.
+# STATUS: phase 1 — the graphical stack (phases 2/3) is not packaged yet.
+# /sbin/init is a non-graphic dev placeholder (VFS + BLS pick + kexec) so the
+# built partition is bootable and the kexec path can be tested from GRUB.
 # ---------------------------------------------------------------------------
 
 parentconfig: molecule
@@ -90,11 +91,120 @@ build:
           package: smartmontools
           buildmode: 1
 
-    # Phase 1 host-side: read-only boot entry for the boot manager itself.
-    # The kernel boots root=<this partition> ro init=<path to the manager>;
-    # no initramfs line, no GRUB menu generation (the manager IS the menu).
+    # Phase 1 host-side: non-graphic dev boot core for the boot manager
+    # itself. The kernel boots root=<this partition> ro; no initramfs, no GRUB
+    # on the target (the manager IS the menu).
+    #
+    # The graphical manager (GTK4/libadwaita, SplashBootManager repo) is not
+    # packaged yet, so /sbin/init is a phase-1 placeholder that does the
+    # non-graphic part of the boot flow: mount the virtual filesystems, pick
+    # the default BLS entry (loader.conf default/timeout) and kexec it, with
+    # a rescue shell fallback. The packaged manager replaces this file
+    # (init=<manager binary>).
+    #
+    # Entry DATA (loader/entries/*.conf for the OSes installed on a specific
+    # machine) is machine-specific and is NOT written here — it is installed
+    # after the build by SplashBootManager/install-test-entries.sh.
     - task: custom
       commands:
        - |
-        : "phase 3 placeholder: emits the EFI/firmware entries for
-        splash-boot-manager once the graphical stack exists"
+        echo "Phase 1 boot core: installing dev init (graphical UI pending)..."
+        install -v -m755 -d "$splash_partition_root/sbin"
+        cat > "$splash_partition_root/sbin/init" << "EOF"
+        #!/bin/bash
+        # splash-boot-manager: phase 1 dev init (placeholder).
+        # The graphical manager (SplashBootManager repo) is not packaged yet;
+        # this is the non-graphic boot core so the boot-manager partition is
+        # actually testable. The packaged manager replaces this file.
+        mount -t proc proc /proc 2>/dev/null
+        mount -t sysfs sysfs /sys 2>/dev/null
+        mountpoint -q /dev || mount -t devtmpfs devtmpfs /dev 2>/dev/null
+
+        echo
+        echo "  Splash Boot Manager - phase 1 (dev init, graphical UI pending)"
+        echo
+
+        shopt -s nullglob
+        entries=(/loader/entries/*.conf)
+        shopt -u nullglob
+        if [ ${#entries[@]} -eq 0 ]; then
+            echo "  No BLS entries under /loader/entries, dropping to a rescue shell."
+            exec /bin/bash
+        fi
+
+        # loader.conf: default entry id (BLS glob-style, trailing * allowed)
+        # and menu timeout in seconds.
+        default=""
+        timeout=5
+        if [ -r /loader/loader.conf ]; then
+            while read -r key value; do
+                case "$key" in
+                    default) default="${value%\*}" ;;
+                    timeout) timeout="$value" ;;
+                esac
+            done < /loader/loader.conf
+        fi
+
+        # Pick the default entry: exact id first, then id prefix (mirrors
+        # src/bls.rs default_entry: exact / ends_with / starts_with),
+        # otherwise the first entry.
+        entry=""
+        for pass in exact prefix; do
+            for e in "${entries[@]}"; do
+                id="$(basename "$e" .conf)"
+                if [ "$pass" = exact ] && [ "$id" = "$default" ]; then
+                    entry="$e"
+                    break 2
+                elif [ "$pass" = prefix ]; then
+                    case "$id" in
+                        "$default"*) entry="$e"; break 2 ;;
+                    esac
+                fi
+            done
+        done
+        [ -n "$entry" ] || entry="${entries[0]}"
+
+        # BLS type 1: "key value" per line (matches src/bls.rs; only the
+        # first initrd is used by this placeholder).
+        title=""
+        kernel=""
+        initrd=""
+        options=""
+        while read -r key value; do
+            case "$key" in
+                title)   title="$value" ;;
+                linux)   kernel="$value" ;;
+                initrd)  initrd="$value" ;;
+                options) options="$options $value" ;;
+            esac
+        done < "$entry"
+
+        id="$(basename "$entry" .conf)"
+        echo "  Default entry: ${title:-$id} ($id)"
+        echo "    kernel:   $kernel"
+        [ -n "$initrd" ] && echo "    initrd:   $initrd"
+        [ -n "$options" ] && echo "    cmdline:  ${options# }"
+        echo
+        printf "  Booting in %ss - press Enter for a rescue shell... " "$timeout"
+        if read -t "$timeout" -r; then
+            echo
+            exec /bin/bash
+        fi
+        echo
+        echo
+
+        [ -n "$options" ] && cmdline="${options# }" || cmdline=""
+        kexec_args=(kexec -l "$kernel" --command-line="$cmdline")
+        [ -n "$initrd" ] && kexec_args+=(--initrd="$initrd")
+
+        if ! "${kexec_args[@]}"; then
+            echo "  kexec -l failed, dropping to a rescue shell."
+            exec /bin/bash
+        fi
+        kexec -e
+        echo "  kexec failed, dropping to a rescue shell."
+        exec /bin/bash
+        EOF
+        chmod -v 755 "$splash_partition_root/sbin/init"
+        # Distinguish the boot-manager install from a regular molecule system
+        sed -i 's/^VARIANT=.*/VARIANT="Splash Boot Manager"/; s/^VARIANT_ID=.*/VARIANT_ID="boot-manager"/' "$splash_partition_root/etc/os-release"
