@@ -340,6 +340,12 @@ libxkbcommon:
 libepoxy:
   url: "https://download.gnome.org/sources/libepoxy/1.5/libepoxy-{VERSION}.tar.xz"
   subdir: true
+libsass:
+  url: "https://github.com/sass/libsass/archive/refs/tags/{VERSION}.tar.gz"
+  subdir: true
+sassc:
+  url: "https://github.com/sass/sassc/archive/refs/tags/{VERSION}.tar.gz"
+  subdir: true
 pyyaml:
   url: "https://github.com/yaml/pyyaml/archive/refs/tags/{VERSION}.tar.gz"
   subdir: true
