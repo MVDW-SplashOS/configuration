@@ -157,7 +157,7 @@ packages:
     - package: "cage"
       version: "0.2.0"
     - package: "splash_boot_manager"
-      version: "0.1.3"
+      version: "0.1.4"
 
     # ---- toolchain: rust for splash-boot-manager (phase 3, Rust/GTK4) -----
     # Bootstrap install of pre-built rustc/cargo binaries (no compilation).
@@ -587,7 +587,9 @@ build:
                && [ -r /usr/share/splashos/boot-logo.raw ]; then
                 SPLASH_ONCE=1 /usr/bin/splash-logo || true
             fi
-            [ -n "$anim_pid" ] && kill "$anim_pid" 2>/dev/null
+            # Let the animation play out (hold the last frame) before the
+            # kexec handoff - a frozen mid-animation frame looks broken.
+            [ -n "$anim_pid" ] && wait "$anim_pid" 2>/dev/null
             kexec -e
             echo "  kexec failed, dropping to a rescue shell."
             return 1
@@ -645,8 +647,9 @@ build:
             probe_tick=$((probe_tick + 1))
         done
         if [ "$sk_status" -eq 0 ]; then
-            # Freeze the animation on its last frame while the UI starts.
-            [ -n "$anim_pid" ] && kill "$anim_pid" 2>/dev/null
+            # Let the animation play out (hold the last frame) before the
+            # UI starts - Apple-style: animation -> options UI.
+            [ -n "$anim_pid" ] && wait "$anim_pid" 2>/dev/null
             echo "  Super key held - boot options"
             echo
 
@@ -661,8 +664,12 @@ build:
                 echo "  Starting the graphical boot options UI..."
                 mkdir -p /run
                 export XDG_RUNTIME_DIR=/run
-                export GSK_RENDERER=cairo
                 export GSETTINGS_BACKEND=memory
+                # NOTE: do NOT set GSK_RENDERER=cairo: the cairo renderer
+                # needs a wl_shm frame pool sized by the window geometry,
+                # and a garbage size from a racing configure makes GDK
+                # abort (ftruncate EINVAL). EGL works (kms_swrast), so
+                # let GTK pick its renderer - GL frames skip wl_shm.
                 # NOTE: do NOT export WAYLAND_DISPLAY here - wlroots'
                 # backend autocreation sees it and tries to CONNECT to a
                 # parent compositor (wayland backend) instead of driving
