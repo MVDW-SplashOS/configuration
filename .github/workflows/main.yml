@@ -1,0 +1,131 @@
+name: Deploy configs (syspkg)
+
+# Configuration files live on syspkg (SplashBuilder + SourceStream fetch the
+# edition configs and upstream-sources.yml from there). On every push to
+# main, upload everything under edition-packages/ plus upstream-sources.yml
+# and LFS-mapping.json, mapping repo-relative paths to
+# /splashos_syspkg/configs/<path> on the syspkg origin. The SFTP session is
+# chrooted to the web root (same as the source-package deploy in the
+# BuildScripts repo: /splashos_syspkg/* == /var/www/splashos_syspkg/*).
+#
+# Required repo secrets (same pair the BuildScripts deploy uses):
+#   SPLASHOS_SFTP_USER          - SFTP login for iloot.it
+#   SPLASHOS_SFTP_PRIVATE_KEY   - OpenSSH private key for that login
+#
+# CDN note: syspkg sits behind Cloudflare. SplashBuilder cache-busts every
+# fetch (?seed=), so builds always see origin truth. SourceStream fetches
+# the edition file WITHOUT a seed: if a just-deployed edition is not picked
+# up there within the CDN TTL, purge the cache or wait it out.
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-configs
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Collect the config files to deploy
+      run: |
+        # Repo-relative path -> syspkg /configs/<same-relative-path>.
+        {
+          echo upstream-sources.yml
+          [ -f LFS-mapping.json ] && echo LFS-mapping.json
+          find edition-packages -type f -name "*.yml" | sort
+        } | tee deploy.list
+        [ -s deploy.list ] || { echo "::error::no config files found"; exit 1; }
+
+    - name: Write SFTP private key
+      env:
+        SFTP_KEY: ${{ secrets.SPLASHOS_SFTP_PRIVATE_KEY }}
+      run: |
+        if [ -z "$SFTP_KEY" ]; then
+          echo "::error::Secret SPLASHOS_SFTP_PRIVATE_KEY is not set."
+          echo "::error::Add the same two secrets the BuildScripts deploy"
+          echo "::error::uses (SPLASHOS_SFTP_USER, SPLASHOS_SFTP_PRIVATE_KEY)"
+          echo "::error::to this repository."
+          exit 1
+        fi
+        mkdir -p ~/.ssh
+        chmod 700 ~/.ssh
+        printf '%s\n' "$SFTP_KEY" > ~/.ssh/splashos_sftp_key
+        chmod 600 ~/.ssh/splashos_sftp_key
+        if ! ssh-keygen -y -f ~/.ssh/splashos_sftp_key > /dev/null; then
+          echo "::error::SPLASHOS_SFTP_PRIVATE_KEY is not a valid OpenSSH private key."
+          exit 1
+        fi
+
+    - name: Pin SFTP host key
+      run: |
+        mkdir -p ~/.ssh
+        chmod 700 ~/.ssh
+        if ! ssh-keyscan -T 15 -p 221 iloot.it >> ~/.ssh/known_hosts; then
+          echo "::error::ssh-keyscan could not reach iloot.it:221 from this runner."
+          echo "::error::Allowlist GitHub Actions IPs (https://api.github.com/meta"
+          echo "::error::-> \"actions\") or open port 221 to all."
+          exit 1
+        fi
+
+    - name: Build the SFTP batch and upload
+      env:
+        SFTP_USER: ${{ secrets.SPLASHOS_SFTP_USER }}
+      run: |
+        # mkdir lines first (dash-prefixed: "already exists" is not an error)
+        while read -r f; do
+          [ -n "$f" ] || continue
+          echo "-mkdir /splashos_syspkg/configs/$(dirname "$f")" >> sftp-batch.txt
+        done < deploy.list
+        while read -r f; do
+          [ -n "$f" ] || continue
+          echo "put \"$f\" \"/splashos_syspkg/configs/$f\"" >> sftp-batch.txt
+        done < deploy.list
+        echo "batch:"; cat sftp-batch.txt
+
+        sftp -b sftp-batch.txt -P 221 \
+             -i ~/.ssh/splashos_sftp_key \
+             -o StrictHostKeyChecking=yes \
+             "$SFTP_USER@iloot.it"
+
+    - name: Verify deployed files on the origin (cache-busted)
+      run: |
+        failed=""
+        while read -r f; do
+          [ -n "$f" ] || continue
+          url="https://syspkg.splashos.com/configs/$f?seed=$(date +%s%N)"
+          if ! curl -sf "$url" | sha256sum | cut -d' ' -f1 > /tmp/remote.sum; then
+            echo "::error::$f not reachable after deploy"
+            failed="$failed $f"
+            continue
+          fi
+          if [ "$(sha256sum "$f" | cut -d' ' -f1)" != "$(cat /tmp/remote.sum)" ]; then
+            echo "::error::$f differs on the syspkg origin after deploy"
+            failed="$failed $f"
+          fi
+        done < deploy.list
+
+        if [ -n "$failed" ]; then
+          echo "::error::Failed to deploy configs:$failed"
+          exit 1
+        fi
+
+        {
+          echo "### Deployed configs"
+          while read -r f; do
+            [ -n "$f" ] && echo "- \`$f\`"
+          done < deploy.list
+        } >> "$GITHUB_STEP_SUMMARY"
