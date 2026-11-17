@@ -157,7 +157,7 @@ packages:
     - package: "cage"
       version: "0.2.0"
     - package: "splash_boot_manager"
-      version: "0.1.0"
+      version: "0.1.1"
 
     # ---- toolchain: rust for splash-boot-manager (phase 3, Rust/GTK4) -----
     # Bootstrap install of pre-built rustc/cargo binaries (no compilation).
@@ -541,6 +541,11 @@ build:
         }
 
         kexec_entry() {
+            # $1 = entry file; $2 = "logo" to blit the static splash frame
+            # over the console AFTER the (slow) kexec -l load and just
+            # before kexec -e - the screen keeps the frame until the new
+            # kernel reinitializes the display. Blitting before kexec -l
+            # only covers the logo with the loader's own output.
             parse_entry "$1"
             local id cmdline kexec_args
             id="$(basename "$1" .conf)"
@@ -554,6 +559,11 @@ build:
             if ! "${kexec_args[@]}"; then
                 echo "  kexec -l failed."
                 return 1
+            fi
+            if [ "$2" = "logo" ] \
+               && [ -x /usr/bin/splash-logo ] \
+               && [ -r /usr/share/splashos/boot-logo.raw ]; then
+                /usr/bin/splash-logo || true
             fi
             kexec -e
             echo "  kexec failed, dropping to a rescue shell."
@@ -581,6 +591,15 @@ build:
         }
 
         # ---- boot options menu (Super key was held) ------------------------
+        # superkey probes the *current* key state of /dev/input/event*.
+        # USB HID devices enumerate asynchronously (~1s into the boot on
+        # VMs), so wait briefly for the first event device before
+        # probing; PS/2 keyboards register immediately (no delay there).
+        probe_waits=0
+        while [ ! -e /dev/input/event0 ] && [ "$probe_waits" -lt 40 ]; do
+            sleep 0.05
+            probe_waits=$((probe_waits + 1))
+        done
         if [ -x /usr/bin/superkey ] && /usr/bin/superkey >/dev/null 2>&1; then
             echo "  Super key held - boot options"
             echo
@@ -645,14 +664,11 @@ build:
         id="$(basename "$entry" .conf)"
         echo "  Booting the default entry \"$id\" (hold Super at power-on for boot options)"
         echo
-        # Splash logo on the framebuffer: hides the text console and keeps
-        # the logo until kexec replaces the screen. Static asset (nframes 1);
-        # the animated GIF plays in the graphical UI and later plymouth.
-        if [ -x /usr/bin/splash-logo ] \
-           && [ -r /usr/share/splashos/boot-logo.raw ]; then
-            /usr/bin/splash-logo || true
-        fi
-        kexec_entry "$entry"
+        # kexec -l loads first (its output and the blit order matter: the
+        # static splash frame must land AFTER the last console text and
+        # just before kexec -e replaces the screen). The animated GIF
+        # plays in the graphical UI and later plymouth.
+        kexec_entry "$entry" logo
         echo
         exec /bin/bash
         EOF
