@@ -664,12 +664,17 @@ build:
                 echo "  Starting the graphical boot options UI..."
                 mkdir -p /run
                 export XDG_RUNTIME_DIR=/run
+                # GSK_RENDERER=cairo: the cairo renderer is the only working
+                # one - the client's own EGL on the render node needs the
+                # 'virtio' DRI driver (not built; the kms_swrast fallback
+                # inside the wayland platform also probes virtio and dies).
+                # The wl_shm pool abort from the previous round was the
+                # garbage window size of the fullscreen() racing cage's
+                # configure - the app no longer requests fullscreen itself.
+                export GSK_RENDERER=cairo
                 export GSETTINGS_BACKEND=memory
-                # NOTE: do NOT set GSK_RENDERER=cairo: the cairo renderer
-                # needs a wl_shm frame pool sized by the window geometry,
-                # and a garbage size from a racing configure makes GDK
-                # abort (ftruncate EINVAL). EGL works (kms_swrast), so
-                # let GTK pick its renderer - GL frames skip wl_shm.
+                # GTK warns (and slows down) without a machine id.
+                [ -e /etc/machine-id ] || : > /etc/machine-id
                 # NOTE: do NOT export WAYLAND_DISPLAY here - wlroots'
                 # backend autocreation sees it and tries to CONNECT to a
                 # parent compositor (wayland backend) instead of driving
@@ -700,8 +705,11 @@ build:
                 seatd -g root >/run/seatd.log 2>&1 &
                 seatd_pid=$!
                 sleep 1
-                cage -d -- /usr/bin/splash-boot-manager --menu --boot-dir /
-                echo "  Graphical UI exited (status $?) , falling back to the console menu."
+                # Foreground cage (no -d): its diagnostics print to the
+                # console instead of vanishing with the daemon.
+                cage -- /usr/bin/splash-boot-manager --menu --boot-dir /
+                gui_status=$?
+                echo "  Graphical UI exited (status $gui_status) , falling back to the console menu."
                 echo
                 kill -TERM "$seatd_pid" 2>/dev/null
             fi
