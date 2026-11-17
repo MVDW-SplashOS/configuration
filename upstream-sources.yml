@@ -346,6 +346,18 @@ libsass:
 sassc:
   url: "https://github.com/sass/sassc/archive/refs/tags/{VERSION}.tar.gz"
   subdir: true
+libyaml:
+  url: "https://github.com/yaml/libyaml/archive/refs/tags/{VERSION}.tar.gz"
+  subdir: true
+libxmlb:
+  url: "https://github.com/hughsie/libxmlb/archive/refs/tags/{VERSION}.tar.gz"
+  subdir: true
+curl:
+  url: "https://curl.se/download/curl-{VERSION}.tar.xz"
+  subdir: true
+appstream:
+  url: "https://github.com/ximion/appstream/archive/refs/tags/v{VERSION}.tar.gz"
+  subdir: true
 pyyaml:
   url: "https://github.com/yaml/pyyaml/archive/refs/tags/{VERSION}.tar.gz"
   subdir: true
