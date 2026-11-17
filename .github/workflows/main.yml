@@ -139,6 +139,14 @@ jobs:
                     except IOError:
                         sftp.mkdir(cur)
                     made.add(cur)
+                # The web root files may be owned by a uid other than the
+                # SFTP user (e.g. uploaded manually before); opening them for
+                # overwrite is EACCES. The parent directory is user-writable,
+                # so unlink first, then upload fresh.
+                try:
+                    sftp.remove(remote)
+                except IOError:
+                    pass
                 sftp.put(f, remote)
                 print(f"uploaded {f} -> {remote}")
         EOF
