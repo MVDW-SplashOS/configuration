@@ -376,3 +376,11 @@ wlroots:
 cage:
   url: "https://github.com/cage-kiosk/cage/archive/refs/tags/v{VERSION}.tar.gz"
   subdir: true
+# splash_boot_manager has no upstream tarball: its GitHub Action packages
+# the sources WITH the vendored crates into a pre-release asset, which
+# SourceStream repacks using the BuildScripts manifest/build script like
+# every other package. Bumping the Cargo.toml version + running the action
+# publishes the new release.
+splash_boot_manager:
+  url: "https://github.com/MVDW-SplashOS/SplashBootManager/releases/download/v{VERSION}/splash_boot_manager-{VERSION}.tar.xz"
+  subdir: true
