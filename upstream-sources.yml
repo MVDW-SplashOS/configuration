@@ -314,10 +314,10 @@ pixman:
   url: "https://xorg.freedesktop.org/archive/individual/lib/pixman-{VERSION}.tar.xz"
   subdir: true
 cairo:
-  url: "https://download.gnome.org/sources/cairo/1.18/cairo-{VERSION}.tar.xz"
+  url: "https://www.cairographics.org/releases/cairo-{VERSION}.tar.xz"
   subdir: true
 graphene:
-  url: "https://github.com/ebassi/graphene/releases/download/{VERSION}/graphene-{VERSION}.tar.xz"
+  url: "https://download.gnome.org/sources/graphene/1.10/graphene-{VERSION}.tar.xz"
   subdir: true
 gdk_pixbuf:
   url: "https://download.gnome.org/sources/gdk-pixbuf/2.42/gdk-pixbuf-{VERSION}.tar.xz"
@@ -335,10 +335,10 @@ wayland_protocols:
   url: "https://gitlab.freedesktop.org/wayland/wayland-protocols/-/releases/{VERSION}/downloads/wayland-protocols-{VERSION}.tar.xz"
   subdir: true
 libxkbcommon:
-  url: "https://xkbcommon.org/download/libxkbcommon-{VERSION}.tar.xz"
+  url: "https://github.com/xkbcommon/libxkbcommon/archive/refs/tags/xkbcommon-{VERSION}.tar.gz"
   subdir: true
 xkeyboard_config:
-  url: "https://xorg.freedesktop.org/archive/individual/data/xkeyboard-config-{VERSION}.tar.xz"
+  url: "https://www.x.org/releases/individual/data/xkeyboard-config/xkeyboard-config-{VERSION}.tar.xz"
   subdir: true
 gtk4:
   url: "https://download.gnome.org/sources/gtk/4.16/gtk-{VERSION}.tar.xz"
@@ -356,7 +356,7 @@ libevdev:
   url: "https://www.freedesktop.org/software/libevdev/libevdev-{VERSION}.tar.xz"
   subdir: true
 mtdev:
-  url: "http://bitmath.org/mtdev/mtdev-{VERSION}.tar.bz2"
+  url: "https://bitmath.org/code/mtdev/mtdev-{VERSION}.tar.bz2"
   subdir: true
 eudev:
   url: "https://github.com/eudev-project/eudev/releases/download/v{VERSION}/eudev-{VERSION}.tar.gz"
@@ -383,4 +383,28 @@ cage:
 # publishes the new release.
 splash_boot_manager:
   url: "https://github.com/MVDW-SplashOS/SplashBootManager/releases/download/v{VERSION}/splash_boot_manager-{VERSION}.tar.xz"
+  subdir: true
+
+efibootmgr:
+  url: "https://github.com/rhboot/efibootmgr/releases/download/{VERSION}/efibootmgr-{VERSION}.tar.bz2"
+  subdir: true
+
+efivar:
+  url: "https://github.com/rhboot/efivar/archive/refs/tags/{VERSION}.tar.gz"
+  subdir: true
+
+kexec_tools:
+  url: "https://www.kernel.org/pub/linux/utils/kernel/kexec/kexec-tools-{VERSION}.tar.xz"
+  subdir: true
+
+popt:
+  url: "http://deb.debian.org/debian/pool/main/p/popt/popt_{VERSION}+dfsg.orig.tar.xz"
+  subdir: true
+
+rust:
+  url: "https://static.rust-lang.org/dist/rust-{VERSION}-x86_64-unknown-linux-gnu.tar.xz"
+  subdir: true
+
+smartmontools:
+  url: "https://downloads.sourceforge.net/project/smartmontools/smartmontools/{VERSION}/smartmontools-{VERSION}.tar.gz"
   subdir: true
