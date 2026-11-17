@@ -123,7 +123,7 @@ packages:
     - package: "libxmlb"
       version: "0.3.21"
     - package: "curl"
-      version: "8.11.1"
+      version: "8.18.0"
     - package: "appstream"
       version: "1.0.4"
 
