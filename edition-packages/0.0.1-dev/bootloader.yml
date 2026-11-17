@@ -157,7 +157,7 @@ packages:
     - package: "cage"
       version: "0.2.0"
     - package: "splash_boot_manager"
-      version: "0.1.1"
+      version: "0.1.2"
 
     # ---- toolchain: rust for splash-boot-manager (phase 3, Rust/GTK4) -----
     # Bootstrap install of pre-built rustc/cargo binaries (no compilation).
@@ -473,11 +473,12 @@ build:
     #      timing race):
     #        - Super NOT held: kexec the default entry IMMEDIATELY - no
     #          countdown, the graphical stack never starts
-    #        - Super held: open the boot options menu. The graphical UI
-    #          (splash-boot-manager under cage via seatd) when the graphical
-    #          stack is packaged (phase 3), a console fallback menu until
-    #          then. splash-boot-manager is launched with --menu: no
-    #          countdown, the entries list only - the user picks, kexec runs.
+    #        - Super held: play the splash animation, then open the boot
+    #          options UI (splash-boot-manager under cage via seatd), a
+    #          console fallback menu if the graphical stack is missing.
+    #          splash-boot-manager is launched with --splash: animated logo
+    #          first, then the Apple-style disc picker - the user picks,
+    #          kexec runs.
     # The packaged manager eventually replaces this init entirely.
     #
     # Entry DATA (loader/entries/*.conf for the OSes installed on a specific
@@ -628,10 +629,10 @@ build:
             echo "  Super key held - boot options"
             echo
 
-            # Graphical UI when the phase-3 stack is packaged: seatd session
-            # -> cage (kiosk Wayland) -> splash-boot-manager --menu (no
-            # countdown, entries list only). Falls back to the console menu
-            # below while the graphical stack is not built yet / on failure.
+            # Graphical UI (phase-3 stack): seatd session -> cage (kiosk
+            # Wayland) -> splash-boot-manager --splash: plays the animated
+            # logo fullscreen first, then opens the Apple-style boot
+            # options UI. Falls back to the console menu on failure.
             if [ -x /usr/bin/splash-boot-manager ] && [ -x /usr/bin/cage ] \
                && [ -x /usr/bin/seatd ]; then
                 echo "  Starting the graphical boot options UI..."
@@ -669,7 +670,7 @@ build:
                 seatd -g root >/run/seatd.log 2>&1 &
                 seatd_pid=$!
                 sleep 1
-                cage -d -- /usr/bin/splash-boot-manager --menu
+                cage -d -- /usr/bin/splash-boot-manager --splash
                 echo "  Graphical UI exited (status $?) , falling back to the console menu."
                 echo
                 kill -TERM "$seatd_pid" 2>/dev/null
