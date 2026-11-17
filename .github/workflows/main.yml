@@ -86,6 +86,9 @@ jobs:
       with:
         python-version: "3.13"
 
+    - name: Install paramiko
+      run: pip install --quiet paramiko
+
     - name: SFTP upload via paramiko
       env:
         SFTP_USER: ${{ secrets.SPLASHOS_SFTP_USER }}
