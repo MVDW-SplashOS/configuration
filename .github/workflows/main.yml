@@ -90,7 +90,7 @@ jobs:
       # --only-binary=:all: (same policy as the SourceStream dependency
       # installs in the BuildScripts deploy): refuse to run setup.py from an
       # sdist; paramiko ships wheels, so a wheel will always be used.
-      run: pip install --quiet --only-binary=:all: paramiko
+      run: "pip install --quiet --only-binary=:all: 'paramiko==5.1.0'"
 
     - name: SFTP upload via paramiko
       env:
