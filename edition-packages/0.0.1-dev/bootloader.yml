@@ -157,7 +157,7 @@ packages:
     - package: "cage"
       version: "0.2.0"
     - package: "splash_boot_manager"
-      version: "0.1.2"
+      version: "0.1.3"
 
     # ---- toolchain: rust for splash-boot-manager (phase 3, Rust/GTK4) -----
     # Bootstrap install of pre-built rustc/cargo binaries (no compilation).
@@ -563,6 +563,11 @@ build:
             # before kexec -e - the screen keeps the frame until the new
             # kernel reinitializes the display. Blitting before kexec -l
             # only covers the logo with the loader's own output.
+            # When the splash animation player is still running ($anim_pid,
+            # set before the superkey probe) the screen is already covered:
+            # skip the one-frame blit and let the player keep painting
+            # during the kexec -l load, then freeze it on its last frame
+            # right before kexec -e.
             parse_entry "$1"
             local id cmdline kexec_args
             id="$(basename "$1" .conf)"
@@ -577,11 +582,12 @@ build:
                 echo "  kexec -l failed."
                 return 1
             fi
-            if [ "$2" = "logo" ] \
+            if [ "$2" = "logo" ] && [ -z "$anim_pid" ] \
                && [ -x /usr/bin/splash-logo ] \
                && [ -r /usr/share/splashos/boot-logo.raw ]; then
-                /usr/bin/splash-logo || true
+                SPLASH_ONCE=1 /usr/bin/splash-logo || true
             fi
+            [ -n "$anim_pid" ] && kill "$anim_pid" 2>/dev/null
             kexec -e
             echo "  kexec failed, dropping to a rescue shell."
             return 1
@@ -615,6 +621,19 @@ build:
         # for up to 2s, exiting as soon as the key is detected. PS/2
         # keyboards register instantly and are detected on the first
         # probe; the added default-boot cost is the tail of the window.
+        #
+        # The splash animation plays while the boot manager is loading:
+        # splash-logo loops the raw asset's frames on the framebuffer
+        # (the console is unbound, so nothing prints over it). When the
+        # branch below decides, the player is killed and the screen
+        # freezes on its last frame until either the UI takes over or
+        # kexec replaces it. Apple-style: animation -> options UI.
+        anim_pid=""
+        if [ -x /usr/bin/splash-logo ] && [ -r /usr/share/splashos/boot-logo.raw ]; then
+            /usr/bin/splash-logo &
+            anim_pid=$!
+        fi
+
         sk_status=1
         probe_tick=0
         while [ "$probe_tick" -lt 20 ]; do
@@ -626,13 +645,17 @@ build:
             probe_tick=$((probe_tick + 1))
         done
         if [ "$sk_status" -eq 0 ]; then
+            # Freeze the animation on its last frame while the UI starts.
+            [ -n "$anim_pid" ] && kill "$anim_pid" 2>/dev/null
             echo "  Super key held - boot options"
             echo
 
             # Graphical UI (phase-3 stack): seatd session -> cage (kiosk
-            # Wayland) -> splash-boot-manager --splash: plays the animated
-            # logo fullscreen first, then opens the Apple-style boot
-            # options UI. Falls back to the console menu on failure.
+            # Wayland) -> splash-boot-manager --menu. The splash animation
+            # already played on the framebuffer while the boot manager was
+            # loading; the UI opens as the Apple-style disc picker.
+            # --boot-dir /: BLS lives in /loader on this partition.
+            # Falls back to the console menu on failure.
             if [ -x /usr/bin/splash-boot-manager ] && [ -x /usr/bin/cage ] \
                && [ -x /usr/bin/seatd ]; then
                 echo "  Starting the graphical boot options UI..."
@@ -670,7 +693,7 @@ build:
                 seatd -g root >/run/seatd.log 2>&1 &
                 seatd_pid=$!
                 sleep 1
-                cage -d -- /usr/bin/splash-boot-manager --splash
+                cage -d -- /usr/bin/splash-boot-manager --menu --boot-dir /
                 echo "  Graphical UI exited (status $?) , falling back to the console menu."
                 echo
                 kill -TERM "$seatd_pid" 2>/dev/null
