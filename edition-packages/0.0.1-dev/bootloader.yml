@@ -101,7 +101,7 @@ packages:
     - package: "pyyaml"
       version: "6.0.2"
     - package: "mesa"
-      version: "24.3.4"
+      version: "25.0.1"
     - package: "libepoxy"
       version: "1.5.10"
 
