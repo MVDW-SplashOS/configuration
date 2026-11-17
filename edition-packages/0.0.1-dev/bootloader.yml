@@ -621,9 +621,14 @@ build:
                 echo "  Starting the graphical boot options UI..."
                 mkdir -p /run
                 export XDG_RUNTIME_DIR=/run
-                export WAYLAND_DISPLAY=wayland-0
                 export GSK_RENDERER=cairo
                 export GSETTINGS_BACKEND=memory
+                # NOTE: do NOT export WAYLAND_DISPLAY here - wlroots'
+                # backend autocreation sees it and tries to CONNECT to a
+                # parent compositor (wayland backend) instead of driving
+                # the DRM device directly, which fails with "Could not
+                # connect to remote display". Clients default to the
+                # wayland-0 socket that cage creates anyway.
                 # libinput enumerates input devices through the udev
                 # database: run eudev's udevd before the compositor.
                 # eudev installs udevd to /usr/sbin, not /usr/lib/udev.
