@@ -673,11 +673,6 @@ build:
                 # configure - the app no longer requests fullscreen itself.
                 export GSK_RENDERER=cairo
                 export GSETTINGS_BACKEND=memory
-                # Print every xdg configure event with its size to the
-                # console: the wl_shm pool is sized from the configured
-                # surface dimensions, and a garbage size makes GDK abort
-                # (ftruncate EINVAL / 'Cairo image surface invalid value').
-                export GDK_DEBUG=events
                 # GTK warns (and slows down) without a machine id.
                 [ -e /etc/machine-id ] || : > /etc/machine-id
                 # NOTE: do NOT export WAYLAND_DISPLAY here - wlroots'
@@ -712,8 +707,24 @@ build:
                 sleep 1
                 # Foreground cage (no -d): its diagnostics print to the
                 # console instead of vanishing with the daemon.
-                cage -- /usr/bin/splash-boot-manager --menu --boot-dir /
+                # WAYLAND_DEBUG=1: libwayland's built-in protocol trace -
+                # it is compiled into every libwayland, unlike GDK_DEBUG
+                # which is compiled out of our release-build GTK. The
+                # trace shows the exact xdg configure size cage sends
+                # and the exact wl_shm create_buffer dimensions GTK
+                # uses; a garbage size there makes GDK abort (ftruncate
+                # EINVAL / Cairo 'invalid value (typically too big)').
+                WAYLAND_DEBUG=1 cage -- /usr/bin/splash-boot-manager --menu --boot-dir / 2>/run/gbm.err
                 gui_status=$?
+                # Print the interesting protocol lines: every xdg
+                # configure (with its size), every shm buffer creation
+                # (with its dimensions), every scale event, plus the
+                # app's stderr. The full trace is in /run/gbm.err.
+                echo "  --- wayland protocol trace (tail) ---"
+                grep -aE "configure|create_buffer|\.scale\(|preferred_scale" /run/gbm.err | tail -20
+                echo "  --- app stderr (tail) ---"
+                tail -8 /run/gbm.err
+                echo "  --- end trace ---"
                 echo "  Graphical UI exited (status $gui_status) , falling back to the console menu."
                 echo
                 kill -TERM "$seatd_pid" 2>/dev/null
