@@ -89,11 +89,17 @@ packages:
     # gtk4 requires epoxy, libjpeg and libtiff unconditionally (no
     # required: false on those dependency() calls). jpeg 9f and tiff 4.4.0
     # are the last non-cmake releases - the chroot has no cmake. libepoxy
-    # vendors its own Khronos headers so it needs no mesa at build time.
+    # only vendors the Khronos registry XML (for codegen), not the compile
+    # headers: EGL/eglplatform.h comes from mesa's egl.pc, so mako + mesa
+    # build before it (mesa's codegen also needs the mako python module).
     - package: "jpeg"
       version: "9f"
     - package: "tiff"
       version: "4.4.0"
+    - package: "mako"
+      version: "1.3.9"
+    - package: "mesa"
+      version: "24.3.4"
     - package: "libepoxy"
       version: "1.5.10"
 
@@ -103,11 +109,6 @@ packages:
       version: "1.5.6"
 
     # ---- phase 3: kiosk session + custom app -------------------------------
-    # mesa uses the LLVM-free softpipe driver for software GL.
-    - package: "mako"
-      version: "1.3.9"
-    - package: "mesa"
-      version: "24.3.4"
     - package: "libevdev"
       version: "1.13.4"
     - package: "mtdev"
@@ -315,13 +316,25 @@ build:
 
         # gtk4 requires epoxy, libjpeg and libtiff unconditionally (no
         # required:false on those dependency() calls); jpeg/tiff are the
-        # non-cmake releases (the chroot has no cmake).
+        # non-cmake releases (the chroot has no cmake). libepoxy only
+        # vendors the Khronos registry XML, not the compile headers:
+        # EGL/eglplatform.h comes from mesa's egl.pc, so mako + mesa
+        # build before it (mesa's codegen also needs the mako module).
         - task: compile
           package: jpeg
           buildmode: 1
 
         - task: compile
           package: tiff
+          buildmode: 1
+
+        # mesa uses the LLVM-free softpipe driver for software GL.
+        - task: compile
+          package: mako
+          buildmode: 1
+
+        - task: compile
+          package: mesa
           buildmode: 1
 
         - task: compile
