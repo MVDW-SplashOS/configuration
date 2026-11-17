@@ -159,6 +159,12 @@ packages:
     - package: "splash_boot_manager"
       version: "0.1.5"
 
+    # The picker UI needs at least one font: Pango/GTK 4.16 compute
+    # garbage window geometry from a label layout with an empty
+    # fontconfig and GDK aborts at the first frame.
+    - package: "dejavu_fonts"
+      version: "2.37"
+
     # ---- toolchain: rust for splash-boot-manager (phase 3, Rust/GTK4) -----
     # Bootstrap install of pre-built rustc/cargo binaries (no compilation).
     - package: "rust"
