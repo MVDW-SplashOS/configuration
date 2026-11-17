@@ -497,6 +497,14 @@ build:
         mount -t sysfs sysfs /sys 2>/dev/null
         mountpoint -q /dev || mount -t devtmpfs devtmpfs /dev 2>/dev/null
 
+        # The boot-manager root is mounted 'ro' (kernel cmdline) - a
+        # read-only boot manager is by design. Runtime state needs a
+        # writable /run though: seatd/udevd bind their sockets there and
+        # the compositor's XDG_RUNTIME_DIR lives there. On the read-only
+        # root those bind() calls would fail with EROFS (the daemons
+        # silently die), so mount /run as tmpfs.
+        mountpoint -q /run || mount -t tmpfs -o mode=0755,nosuid,nodev tmpfs /run
+
         echo
         echo "  Splash Boot Manager (dev init)"
         echo
@@ -637,7 +645,7 @@ build:
                     udevadm trigger --action=add --type=devices 2>/dev/null
                     udevadm settle 2>/dev/null || true
                 fi
-                seatd -g root >/dev/null 2>&1 &
+                seatd -g root >/run/seatd.log 2>&1 &
                 seatd_pid=$!
                 sleep 1
                 cage -d -- /usr/bin/splash-boot-manager --menu
