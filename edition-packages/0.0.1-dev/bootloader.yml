@@ -85,6 +85,18 @@ packages:
       version: "1.8.1"
     - package: "xkeyboard_config"
       version: "2.44"
+
+    # gtk4 requires epoxy, libjpeg and libtiff unconditionally (no
+    # required: false on those dependency() calls). jpeg 9f and tiff 4.4.0
+    # are the last non-cmake releases - the chroot has no cmake. libepoxy
+    # vendors its own Khronos headers so it needs no mesa at build time.
+    - package: "jpeg"
+      version: "9f"
+    - package: "tiff"
+      version: "4.4.0"
+    - package: "libepoxy"
+      version: "1.5.10"
+
     - package: "gtk4"
       version: "4.16.12"
     - package: "libadwaita"

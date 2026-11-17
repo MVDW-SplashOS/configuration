@@ -337,6 +337,15 @@ wayland_protocols:
 libxkbcommon:
   url: "https://github.com/xkbcommon/libxkbcommon/archive/refs/tags/xkbcommon-{VERSION}.tar.gz"
   subdir: true
+libepoxy:
+  url: "https://download.gnome.org/sources/libepoxy/1.5/libepoxy-{VERSION}.tar.xz"
+  subdir: true
+jpeg:
+  url: "https://www.ijg.org/files/jpegsrc.v{VERSION}.tar.gz"
+  subdir: true
+tiff:
+  url: "https://download.osgeo.org/libtiff/tiff-{VERSION}.tar.gz"
+  subdir: true
 xkeyboard_config:
   url: "https://www.x.org/releases/individual/data/xkeyboard-config/xkeyboard-config-{VERSION}.tar.xz"
   subdir: true
