@@ -341,7 +341,7 @@ libepoxy:
   url: "https://download.gnome.org/sources/libepoxy/1.5/libepoxy-{VERSION}.tar.xz"
   subdir: true
 pyyaml:
-  url: "https://pyyaml.org/download/pyyaml/PyYAML-{VERSION}.tar.gz"
+  url: "https://github.com/yaml/pyyaml/archive/refs/tags/{VERSION}.tar.gz"
   subdir: true
 jpeg:
   url: "https://www.ijg.org/files/jpegsrc.v{VERSION}.tar.gz"
