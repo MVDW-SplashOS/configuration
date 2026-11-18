@@ -529,9 +529,33 @@ build:
         mkdir -p /dev/shm
         mountpoint -q /dev/shm || mount -t tmpfs -o mode=1777,nosuid,nodev tmpfs /dev/shm
 
-        echo
-        echo "  Splash Boot Manager (dev init)"
-        echo
+        # ---- console ownership --------------------------------------------
+        # Nothing may paint over the splash logo, so keep the init silent:
+        # progress goes to /run/boot.log (tmpfs - the root is read-only) and
+        # fbcon is unbound for the whole animated phase. Kernel noise is
+        # already suppressed by the boot entry's 'quiet'.
+        # NOTE: the player's own unbind targets vtcon1, which is the *dummy*
+        # console on this kernel (vtcon0 is fbcon), so hide it here as well.
+        # The console comes back whenever a console UI (menu, rescue shell)
+        # is needed.
+        log() { printf '%s\n' "$*" >>/run/boot.log 2>/dev/null; }
+
+        console_owner() {   # $1 = 0 hide fbcon, 1 take the console back
+            local v
+            for v in /sys/class/vtconsole/vtcon*; do
+                case "$(cat "$v/name" 2>/dev/null)" in
+                    *"frame buffer"*) echo "$1" > "$v/bind" 2>/dev/null ;;
+                esac
+            done
+        }
+
+        console_restore() {
+            console_owner 1
+            # fbcon redraws the VT buffer on bind; it was cleared before the
+            # unbind, so drop anything left over and start the fallback UI
+            # from a clean screen.
+            printf '\033[H\033[2J' >/dev/tty1 2>/dev/null
+        }
 
         # ---- BLS boot tree ------------------------------------------------
         shopt -s nullglob
@@ -587,14 +611,15 @@ build:
             local id cmdline kexec_args
             id="$(basename "$1" .conf)"
             cmdline="${entry_options# }"
-            echo "  Booting \"${entry_title:-$id}\" ($id)"
-            echo "    kernel:   $entry_kernel"
-            [ -n "$entry_initrd" ] && echo "    initrd:   $entry_initrd"
-            [ -n "$cmdline" ] && echo "    cmdline:  $cmdline"
+            log "Booting \"${entry_title:-$id}\" ($id)"
+            log "  kernel:   $entry_kernel"
+            [ -n "$entry_initrd" ] && log "    initrd:   $entry_initrd"
+            [ -n "$cmdline" ] && log "    cmdline:  $cmdline"
             kexec_args=(kexec -l "$entry_kernel" --command-line="$cmdline")
             [ -n "$entry_initrd" ] && kexec_args+=(--initrd="$entry_initrd")
-            if ! "${kexec_args[@]}"; then
-                echo "  kexec -l failed."
+            if ! "${kexec_args[@]}" >>/run/boot.log 2>&1; then
+                console_restore
+                echo "  kexec -l failed for \"${entry_title:-$id}\" (details: /run/boot.log)."
                 return 1
             fi
             if [ "$2" = "logo" ] && [ -z "$anim_pid" ] \
@@ -606,6 +631,7 @@ build:
             # kexec handoff - a frozen mid-animation frame looks broken.
             [ -n "$anim_pid" ] && wait "$anim_pid" 2>/dev/null
             kexec -e
+            console_restore
             echo "  kexec failed, dropping to a rescue shell."
             return 1
         }
@@ -640,13 +666,17 @@ build:
         # probe; the added default-boot cost is the tail of the window.
         #
         # The splash animation plays while the boot manager is loading:
-        # splash-logo loops the raw asset's frames on the framebuffer
-        # (the console is unbound, so nothing prints over it). When the
-        # branch below decides, the player is killed and the screen
-        # freezes on its last frame until either the UI takes over or
-        # kexec replaces it. Apple-style: animation -> options UI.
+        # splash-logo blits the raw asset's frames once (the console is
+        # unbound, so nothing prints over it) and the LAST frame stays up
+        # until either the UI takes over or kexec replaces the screen.
+        # Apple-style: animation -> options UI.
         anim_pid=""
         if [ -x /usr/bin/splash-logo ] && [ -r /usr/share/splashos/boot-logo.raw ]; then
+            # empty the VT buffer while it is still drawable, then detach
+            # fbcon: from here on nothing the manager writes reaches the
+            # screen and kernel messages (loglevel <= 3) cannot repaint it
+            printf '\033[H\033[2J' >/dev/tty1 2>/dev/null
+            console_owner 0
             /usr/bin/splash-logo &
             anim_pid=$!
         fi
@@ -665,8 +695,7 @@ build:
             # Let the animation play out (hold the last frame) before the
             # UI starts - Apple-style: animation -> options UI.
             [ -n "$anim_pid" ] && wait "$anim_pid" 2>/dev/null
-            echo "  Super key held - boot options"
-            echo
+            log "Super key held - boot options"
 
             # Graphical UI (phase-3 stack): seatd session -> cage (kiosk
             # Wayland) -> splash-boot-manager --menu. The splash animation
@@ -676,7 +705,7 @@ build:
             # Falls back to the console menu on failure.
             if [ -x /usr/bin/splash-boot-manager ] && [ -x /usr/bin/cage ] \
                && [ -x /usr/bin/seatd ]; then
-                echo "  Starting the graphical boot options UI..."
+                log "Starting the graphical boot options UI..."
                 mkdir -p /run
                 export XDG_RUNTIME_DIR=/run
                 # kexec lives in /usr/sbin; without a PATH the app's
@@ -713,13 +742,13 @@ build:
                     # there means cage starts with no keyboard and the
                     # wlroots no-input-devices check aborts the backend.
                     udev_records=$(ls /run/udev/data 2>/dev/null | wc -l)
-                    echo "  udev: $udev_records device records in /run/udev/data"
+                    log "udev: $udev_records device records in /run/udev/data"
                     if [ "$udev_records" -eq 0 ]; then
-                        echo "  udev: retrying trigger/settle..."
+                        log "udev: retrying trigger/settle..."
                         udevadm trigger --action=add 2>/dev/null
                         udevadm settle 2>/dev/null || true
                         udev_records=$(ls /run/udev/data 2>/dev/null | wc -l)
-                        echo "  udev: $udev_records records after retry"
+                        log "udev: $udev_records records after retry"
                     fi
                 fi
                 seatd -g root >/run/seatd.log 2>&1 &
@@ -736,6 +765,9 @@ build:
                 # EINVAL / Cairo 'invalid value (typically too big)').
                 WAYLAND_DEBUG=1 cage -- /usr/bin/splash-boot-manager --menu --boot-dir / 2>/run/gbm.err
                 gui_status=$?
+                # cage owned the DRM output while it ran: take the console
+                # back before the fallback menu (and its diagnostics) print.
+                console_restore
                 # Print the interesting protocol lines: every xdg
                 # configure (with its size), every shm buffer creation
                 # (with its dimensions), every scale event, plus the
@@ -750,6 +782,9 @@ build:
                 kill -TERM "$seatd_pid" 2>/dev/null
             fi
 
+            # The console menu below needs fbcon: restore it (idempotent -
+            # the graphical path already did this before its diagnostics).
+            console_restore
             echo "  Boot options:"
             echo
             local_menu=()
@@ -777,14 +812,13 @@ build:
         else
             # Diagnostic: 1 = key simply not held at probe time, other
             # non-zero values point at a superkey probe error.
-            echo "  superkey: probe exit $sk_status (1 = not held)"
+            log "superkey: probe exit $sk_status (1 = not held)"
         fi
 
         # ---- default boot: IMMEDIATELY, no timeout -------------------------
         entry="$(pick_default)"
         id="$(basename "$entry" .conf)"
-        echo "  Booting the default entry \"$id\" (hold Super at power-on for boot options)"
-        echo
+        log "Booting the default entry \"$id\" (hold Super at power-on for boot options)"
         # kexec -l loads first (its output and the blit order matter: the
         # static splash frame must land AFTER the last console text and
         # just before kexec -e replaces the screen). The animated GIF
