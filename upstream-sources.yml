@@ -444,3 +444,9 @@ rust:
 smartmontools:
   url: "https://downloads.sourceforge.net/project/smartmontools/smartmontools/{VERSION}/smartmontools-{VERSION}.tar.gz"
   subdir: true
+
+dejavu_fonts:
+  # DejaVu ships its release tarball as bzip2; the release tag is
+  # 'version_2_37' (dots replaced by underscores).
+  url: "https://github.com/dejavu-fonts/dejavu-fonts/releases/download/version_{VERSION_SEPARATE_UNDERSCORE}/dejavu-fonts-ttf-{VERSION}.tar.bz2"
+  subdir: true
