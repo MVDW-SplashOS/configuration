@@ -157,7 +157,7 @@ packages:
     - package: "cage"
       version: "0.2.0"
     - package: "splash_boot_manager"
-      version: "0.1.6"
+      version: "0.1.7"
 
     # The picker UI needs at least one font: Pango/GTK 4.16 compute
     # garbage window geometry from a label layout with an empty
