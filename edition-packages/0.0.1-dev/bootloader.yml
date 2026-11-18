@@ -679,6 +679,11 @@ build:
                 echo "  Starting the graphical boot options UI..."
                 mkdir -p /run
                 export XDG_RUNTIME_DIR=/run
+                # kexec lives in /usr/sbin; without a PATH the app's
+                # execvp falls back to /bin:/usr/bin and the disc picker
+                # reports 'failed to spawn kexec: No such file or
+                # directory'.
+                export PATH=/usr/sbin:/usr/bin:/sbin:/bin
                 # GSK_RENDERER=cairo: the cairo renderer is the only working
                 # one - the client's own EGL on the render node needs the
                 # 'virtio' DRI driver (not built; the kms_swrast fallback
