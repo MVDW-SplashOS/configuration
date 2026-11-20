@@ -947,8 +947,11 @@ cryptsetup:
 libnvme:
   url: "https://github.com/linux-nvme/libnvme/archive/v{VERSION}/libnvme-{VERSION}.tar.gz"
   subdir: true
+# git.kernel.org snapshots answer python-requests (SourceStream) with 403
+# and upstream publishes no other release tarball; Debian's orig tarball is
+# the unmodified 1.6.3 release (top dir keyutils-<version>).
 keyutils:
-  url: "https://git.kernel.org/pub/scm/linux/kernel/git/dhowells/keyutils.git/snapshot/keyutils-{VERSION}.tar.gz"
+  url: "https://deb.debian.org/debian/pool/main/k/keyutils/keyutils_{VERSION}.orig.tar.gz"
   subdir: true
 perl_parse_yapp:
   url: "https://www.cpan.org/authors/id/W/WB/WBRASWELL/Parse-Yapp-{VERSION}.tar.gz"
