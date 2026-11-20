@@ -12,7 +12,8 @@
 #
 # What this layer builds: GNOME Shell on Mutter (Wayland + Xwayland), GDM,
 # gnome-settings-daemon, gnome-session, PipeWire audio, NetworkManager,
-# ModemManager, BlueZ, udisks2, printing (CUPS + Avahi + Samba client), the
+# ModemManager, BlueZ, udisks2, printing (CUPS, Avahi, cups-filters,
+# Ghostscript, Samba client), the
 # GNOME portals, Settings, Files (Nautilus), Console and GNOME Software
 # (the Flatpak store). The task list is in dependency order.
 #
@@ -22,8 +23,8 @@
 # mesa, libepoxy, gtk4 here) and systemd with PAM.
 #
 # NOT built yet (follow-up):
-#   - print filters/drivers (cups-filters, libcupsfilters, libppd,
-#     Ghostscript, qpdf, poppler): CUPS alone drives driverless IPP printers.
+#   - vendor printer drivers (Gutenprint, HPLIP, ...): driverless IPP
+#     printers and PPD/Ghostscript-driven printers work with what is here.
 #   - gnome-initial-setup: the image ships a preconfigured user instead.
 #   - localsearch (file indexer), Xorg session (Wayland only),
 #     gnome-terminal (replaced by GNOME Console).
@@ -366,6 +367,25 @@ packages:
       version: "1.4.4"
     - package: "samba"
       version: "4.21.4"
+    # ---- print filters: Ghostscript/Poppler/qpdf + OpenPrinting libcupsfilters, libppd, cups-filters, cups-browsed ----
+    - package: "openjpeg"
+      version: "2.5.3"
+    - package: "qpdf"
+      version: "11.9.1"
+    - package: "poppler"
+      version: "24.12.0"
+    - package: "poppler_data"
+      version: "0.4.12"
+    - package: "ghostscript"
+      version: "10.04.0"
+    - package: "libcupsfilters"
+      version: "2.1.0"
+    - package: "libppd"
+      version: "2.1.0"
+    - package: "cups_filters"
+      version: "2.0.1"
+    - package: "cups_browsed"
+      version: "2.1.0"
     # ---- GNOME Settings and its remaining dependencies ----
     - package: "gnome_online_accounts"
       version: "3.52.2"
@@ -878,6 +898,34 @@ build:
           buildmode: 1
         - task: compile
           package: samba
+          buildmode: 1
+        # ---- print filters: Ghostscript/Poppler/qpdf + OpenPrinting libcupsfilters, libppd, cups-filters, cups-browsed ----
+        - task: compile
+          package: openjpeg
+          buildmode: 1
+        - task: compile
+          package: qpdf
+          buildmode: 1
+        - task: compile
+          package: poppler
+          buildmode: 1
+        - task: compile
+          package: poppler_data
+          buildmode: 1
+        - task: compile
+          package: ghostscript
+          buildmode: 1
+        - task: compile
+          package: libcupsfilters
+          buildmode: 1
+        - task: compile
+          package: libppd
+          buildmode: 1
+        - task: compile
+          package: cups_filters
+          buildmode: 1
+        - task: compile
+          package: cups_browsed
           buildmode: 1
         # ---- GNOME Settings and its remaining dependencies ----
         - task: compile

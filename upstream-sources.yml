@@ -959,3 +959,33 @@ libxslt:
 gnome_control_center:
   url: "https://download.gnome.org/sources/gnome-control-center/{VERSION_MAJOR}/gnome-control-center-{VERSION}.tar.xz"
   subdir: true
+
+# --- desktop-gnome: print filters (OpenPrinting 2.x) -------------------------
+openjpeg:
+  url: "https://github.com/uclouvain/openjpeg/archive/v{VERSION}/openjpeg-{VERSION}.tar.gz"
+  subdir: true
+qpdf:
+  url: "https://github.com/qpdf/qpdf/releases/download/v{VERSION}/qpdf-{VERSION}.tar.gz"
+  subdir: true
+poppler:
+  url: "https://poppler.freedesktop.org/poppler-{VERSION}.tar.xz"
+  subdir: true
+poppler_data:
+  url: "https://poppler.freedesktop.org/poppler-data-{VERSION}.tar.gz"
+  subdir: true
+# Release tag is gs<major><minor><revision>, e.g. gs10040 for 10.04.0.
+ghostscript:
+  url: "https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs{VERSION_MAJOR}{VERSION_MINOR}{VERSION_REVISION}/ghostscript-{VERSION}.tar.xz"
+  subdir: true
+libcupsfilters:
+  url: "https://github.com/OpenPrinting/libcupsfilters/releases/download/{VERSION}/libcupsfilters-{VERSION}.tar.xz"
+  subdir: true
+libppd:
+  url: "https://github.com/OpenPrinting/libppd/releases/download/{VERSION}/libppd-{VERSION}.tar.xz"
+  subdir: true
+cups_filters:
+  url: "https://github.com/OpenPrinting/cups-filters/releases/download/{VERSION}/cups-filters-{VERSION}.tar.xz"
+  subdir: true
+cups_browsed:
+  url: "https://github.com/OpenPrinting/cups-browsed/releases/download/{VERSION}/cups-browsed-{VERSION}.tar.xz"
+  subdir: true
