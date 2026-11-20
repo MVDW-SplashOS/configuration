@@ -262,6 +262,9 @@ util_linux:
 vim:
   url: "https://github.com/vim/vim/archive/v{VERSION}/vim-{VERSION}.tar.gz"
   subdir: true
+which:
+  url: "https://ftpmirror.gnu.org/which/which-{VERSION}.tar.gz"
+  subdir: true
 wheel:
   url: "https://pypi.org/packages/source/w/wheel/wheel-{VERSION}.tar.gz"
   subdir: true

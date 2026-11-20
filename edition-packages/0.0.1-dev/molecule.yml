@@ -248,6 +248,9 @@ packages:
     - package: "vim"
       version: "9.2.1025"
 
+    - package: "which"
+      version: "2.23"
+
     - package: "wheel"
       version: "0.48.0"
 
@@ -721,6 +724,13 @@ build:
         - task: compile
           package: patch
           buildmode: 2
+
+        # GNU which: many upstream build/install scripts call `which`
+        # to probe for tools (squashfs-tools' man page installer refuses
+        # to run without it).
+        - task: compile
+          package: which
+          buildmode: 1
           
         - task: compile
           package: tar
