@@ -12,7 +12,8 @@
 #
 # What this layer builds: GNOME Shell on Mutter (Wayland + Xwayland), GDM,
 # gnome-settings-daemon, gnome-session, PipeWire audio, NetworkManager,
-# BlueZ, the GNOME portals, Files (Nautilus), Console and GNOME Software
+# ModemManager, BlueZ, udisks2, printing (CUPS + Avahi + Samba client), the
+# GNOME portals, Settings, Files (Nautilus), Console and GNOME Software
 # (the Flatpak store). The task list is in dependency order.
 #
 # buildmode 2 entries rebuild packages that the bootloader edition builds
@@ -21,9 +22,8 @@
 # mesa, libepoxy, gtk4 here) and systemd with PAM.
 #
 # NOT built yet (follow-up):
-#   - gnome-control-center (Settings): hard-requires CUPS, plus
-#     gnome-online-accounts, gnome-bluetooth, libnma, udisks2, libpwquality,
-#     ModemManager, ...
+#   - print filters/drivers (cups-filters, libcupsfilters, libppd,
+#     Ghostscript, qpdf, poppler): CUPS alone drives driverless IPP printers.
 #   - gnome-initial-setup: the image ships a preconfigured user instead.
 #   - localsearch (file indexer), Xorg session (Wayland only),
 #     gnome-terminal (replaced by GNOME Console).
@@ -41,6 +41,10 @@ packages:
       version: "1.100.0"
     - package: "python_attrs"
       version: "24.2.0"
+    - package: "libxslt"
+      version: "1.1.42"
+    - package: "perl_parse_yapp"
+      version: "1.21"
     # ---- X11 client stack (Xwayland, Mutter, GTK3/GTK4 X11 backends, Mesa GLX) ----
     - package: "util_macros"
       version: "1.20.2"
@@ -198,6 +202,10 @@ packages:
       version: "1.7.0"
     - package: "systemd"
       version: "261.2"
+    - package: "cracklib"
+      version: "2.10.3"
+    - package: "libpwquality"
+      version: "1.4.5"
     # ---- secrets / keyring ----
     - package: "libsecret"
       version: "0.21.4"
@@ -269,6 +277,31 @@ packages:
       version: "1.50.0"
     - package: "bluez"
       version: "5.79"
+    - package: "gsound"
+      version: "1.0.3"
+    - package: "gnome_bluetooth"
+      version: "47.1"
+    # ---- storage: udisks2 (mounting in Files/Shell, disk info in Settings) ----
+    - package: "popt"
+      version: "1.19"
+    - package: "keyutils"
+      version: "1.6.3"
+    - package: "json_c"
+      version: "0.18"
+    - package: "lvm2"
+      version: "2.03.29"
+    - package: "cryptsetup"
+      version: "2.7.5"
+    - package: "libnvme"
+      version: "1.11.1"
+    - package: "libbytesize"
+      version: "2.11"
+    - package: "libatasmart"
+      version: "0.19"
+    - package: "libblockdev"
+      version: "3.2.1"
+    - package: "udisks"
+      version: "2.10.1"
     # ---- GNOME libraries ----
     - package: "gnome_desktop"
       version: "44.0"
@@ -320,6 +353,34 @@ packages:
       version: "47.1"
     - package: "gnome_software"
       version: "47.2"
+    # ---- printing: CUPS with Avahi discovery, Samba client (SMB printers) ----
+    - package: "libdaemon"
+      version: "0.14"
+    - package: "avahi"
+      version: "0.8"
+    - package: "cups"
+      version: "2.4.11"
+    - package: "libtirpc"
+      version: "1.3.6"
+    - package: "rpcsvc_proto"
+      version: "1.4.4"
+    - package: "samba"
+      version: "4.21.4"
+    # ---- GNOME Settings and its remaining dependencies ----
+    - package: "gnome_online_accounts"
+      version: "3.52.2"
+    - package: "mobile_broadband_provider_info"
+      version: "20240407"
+    - package: "modemmanager"
+      version: "1.22.0"
+    - package: "libnma"
+      version: "1.10.6"
+    - package: "colord_gtk"
+      version: "0.3.1"
+    - package: "tecla"
+      version: "47.0"
+    - package: "gnome_control_center"
+      version: "47.2"
 
 build:
     - task: change_enviroment
@@ -337,6 +398,12 @@ build:
           buildmode: 1
         - task: compile
           package: python_attrs
+          buildmode: 1
+        - task: compile
+          package: libxslt
+          buildmode: 1
+        - task: compile
+          package: perl_parse_yapp
           buildmode: 1
         # ---- X11 client stack (Xwayland, Mutter, GTK3/GTK4 X11 backends, Mesa GLX) ----
         - task: compile
@@ -570,6 +637,12 @@ build:
         - task: compile
           package: systemd
           buildmode: 2
+        - task: compile
+          package: cracklib
+          buildmode: 1
+        - task: compile
+          package: libpwquality
+          buildmode: 1
         # ---- secrets / keyring ----
         - task: compile
           package: libsecret
@@ -675,6 +748,43 @@ build:
         - task: compile
           package: bluez
           buildmode: 1
+        - task: compile
+          package: gsound
+          buildmode: 1
+        - task: compile
+          package: gnome_bluetooth
+          buildmode: 1
+        # ---- storage: udisks2 (mounting in Files/Shell, disk info in Settings) ----
+        - task: compile
+          package: popt
+          buildmode: 1
+        - task: compile
+          package: keyutils
+          buildmode: 1
+        - task: compile
+          package: json_c
+          buildmode: 1
+        - task: compile
+          package: lvm2
+          buildmode: 1
+        - task: compile
+          package: cryptsetup
+          buildmode: 1
+        - task: compile
+          package: libnvme
+          buildmode: 1
+        - task: compile
+          package: libbytesize
+          buildmode: 1
+        - task: compile
+          package: libatasmart
+          buildmode: 1
+        - task: compile
+          package: libblockdev
+          buildmode: 1
+        - task: compile
+          package: udisks
+          buildmode: 1
         # ---- GNOME libraries ----
         - task: compile
           package: gnome_desktop
@@ -749,6 +859,47 @@ build:
           buildmode: 1
         - task: compile
           package: gnome_software
+          buildmode: 1
+        # ---- printing: CUPS with Avahi discovery, Samba client (SMB printers) ----
+        - task: compile
+          package: libdaemon
+          buildmode: 1
+        - task: compile
+          package: avahi
+          buildmode: 1
+        - task: compile
+          package: cups
+          buildmode: 1
+        - task: compile
+          package: libtirpc
+          buildmode: 1
+        - task: compile
+          package: rpcsvc_proto
+          buildmode: 1
+        - task: compile
+          package: samba
+          buildmode: 1
+        # ---- GNOME Settings and its remaining dependencies ----
+        - task: compile
+          package: gnome_online_accounts
+          buildmode: 1
+        - task: compile
+          package: mobile_broadband_provider_info
+          buildmode: 1
+        - task: compile
+          package: modemmanager
+          buildmode: 1
+        - task: compile
+          package: libnma
+          buildmode: 1
+        - task: compile
+          package: colord_gtk
+          buildmode: 1
+        - task: compile
+          package: tecla
+          buildmode: 1
+        - task: compile
+          package: gnome_control_center
           buildmode: 1
 
         - task: custom

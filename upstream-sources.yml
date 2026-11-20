@@ -872,3 +872,90 @@ xwayland:
 libxcvt:
   url: "https://www.x.org/pub/individual/lib/libxcvt-{VERSION}.tar.xz"
   subdir: true
+
+# --- desktop-gnome: GNOME Settings (gnome-control-center) + printing ------
+cups:
+  url: "https://github.com/OpenPrinting/cups/releases/download/v{VERSION}/cups-{VERSION}-source.tar.gz"
+  subdir: true
+samba:
+  url: "https://download.samba.org/pub/samba/stable/samba-{VERSION}.tar.gz"
+  subdir: true
+avahi:
+  url: "https://github.com/avahi/avahi/releases/download/v{VERSION}/avahi-{VERSION}.tar.gz"
+  subdir: true
+libdaemon:
+  url: "https://0pointer.de/lennart/projects/libdaemon/libdaemon-{VERSION}.tar.gz"
+  subdir: true
+libtirpc:
+  url: "https://downloads.sourceforge.net/libtirpc/libtirpc-{VERSION}.tar.bz2"
+  subdir: true
+rpcsvc_proto:
+  url: "https://github.com/thkukuk/rpcsvc-proto/releases/download/v{VERSION}/rpcsvc-proto-{VERSION}.tar.xz"
+  subdir: true
+colord_gtk:
+  url: "https://www.freedesktop.org/software/colord/releases/colord-gtk-{VERSION}.tar.xz"
+  subdir: true
+gnome_online_accounts:
+  url: "https://download.gnome.org/sources/gnome-online-accounts/{VERSION_MAJOR}.{VERSION_MINOR}/gnome-online-accounts-{VERSION}.tar.xz"
+  subdir: true
+gnome_bluetooth:
+  url: "https://download.gnome.org/sources/gnome-bluetooth/{VERSION_MAJOR}/gnome-bluetooth-{VERSION}.tar.xz"
+  subdir: true
+gsound:
+  url: "https://download.gnome.org/sources/gsound/{VERSION_MAJOR}.{VERSION_MINOR}/gsound-{VERSION}.tar.xz"
+  subdir: true
+libnma:
+  url: "https://download.gnome.org/sources/libnma/{VERSION_MAJOR}.{VERSION_MINOR}/libnma-{VERSION}.tar.xz"
+  subdir: true
+mobile_broadband_provider_info:
+  url: "https://download.gnome.org/sources/mobile-broadband-provider-info/{VERSION}/mobile-broadband-provider-info-{VERSION}.tar.xz"
+  subdir: true
+modemmanager:
+  url: "https://gitlab.freedesktop.org/mobile-broadband/ModemManager/-/archive/{VERSION}/ModemManager-{VERSION}.tar.gz"
+  subdir: true
+libpwquality:
+  url: "https://github.com/libpwquality/libpwquality/releases/download/libpwquality-{VERSION}/libpwquality-{VERSION}.tar.bz2"
+  subdir: true
+cracklib:
+  url: "https://github.com/cracklib/cracklib/releases/download/v{VERSION}/cracklib-{VERSION}.tar.xz"
+  subdir: true
+udisks:
+  url: "https://github.com/storaged-project/udisks/releases/download/udisks-{VERSION}/udisks-{VERSION}.tar.bz2"
+  subdir: true
+libblockdev:
+  url: "https://github.com/storaged-project/libblockdev/releases/download/{VERSION}/libblockdev-{VERSION}.tar.gz"
+  subdir: true
+libbytesize:
+  url: "https://github.com/storaged-project/libbytesize/releases/download/{VERSION}/libbytesize-{VERSION}.tar.gz"
+  subdir: true
+libatasmart:
+  url: "https://0pointer.de/public/libatasmart-{VERSION}.tar.xz"
+  subdir: true
+tecla:
+  url: "https://download.gnome.org/sources/tecla/{VERSION_MAJOR}/tecla-{VERSION}.tar.xz"
+  subdir: true
+# Only the device-mapper part is built (cryptsetup).
+lvm2:
+  url: "https://sourceware.org/ftp/lvm2/LVM2.{VERSION}.tgz"
+  subdir: true
+json_c:
+  url: "https://s3.amazonaws.com/json-c_releases/releases/json-c-{VERSION}.tar.gz"
+  subdir: true
+cryptsetup:
+  url: "https://www.kernel.org/pub/linux/utils/cryptsetup/v{VERSION_MAJOR}.{VERSION_MINOR}/cryptsetup-{VERSION}.tar.xz"
+  subdir: true
+libnvme:
+  url: "https://github.com/linux-nvme/libnvme/archive/v{VERSION}/libnvme-{VERSION}.tar.gz"
+  subdir: true
+keyutils:
+  url: "https://git.kernel.org/pub/scm/linux/kernel/git/dhowells/keyutils.git/snapshot/keyutils-{VERSION}.tar.gz"
+  subdir: true
+perl_parse_yapp:
+  url: "https://www.cpan.org/authors/id/W/WB/WBRASWELL/Parse-Yapp-{VERSION}.tar.gz"
+  subdir: true
+libxslt:
+  url: "https://download.gnome.org/sources/libxslt/{VERSION_MAJOR}.{VERSION_MINOR}/libxslt-{VERSION}.tar.xz"
+  subdir: true
+gnome_control_center:
+  url: "https://download.gnome.org/sources/gnome-control-center/{VERSION_MAJOR}/gnome-control-center-{VERSION}.tar.xz"
+  subdir: true
