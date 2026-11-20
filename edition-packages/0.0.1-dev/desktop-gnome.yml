@@ -13,7 +13,7 @@
 # What this layer builds: GNOME Shell on Mutter (Wayland + Xwayland), GDM,
 # gnome-settings-daemon, gnome-session, PipeWire audio, NetworkManager,
 # ModemManager, BlueZ, udisks2, printing (CUPS, Avahi, cups-filters,
-# Ghostscript, Samba client), the
+# Ghostscript, Gutenprint, HPLIP, brlaser, Samba client), the
 # GNOME portals, Settings, Files (Nautilus), Console and GNOME Software
 # (the Flatpak store). The task list is in dependency order.
 #
@@ -23,8 +23,8 @@
 # mesa, libepoxy, gtk4 here) and systemd with PAM.
 #
 # NOT built yet (follow-up):
-#   - vendor printer drivers (Gutenprint, HPLIP, ...): driverless IPP
-#     printers and PPD/Ghostscript-driven printers work with what is here.
+#   - further vendor drivers (splix, foo2zjs, Epson ESC/P-R, ...) and the
+#     HPLIP Python tools (hp-setup, scanning, fax).
 #   - gnome-initial-setup: the image ships a preconfigured user instead.
 #   - localsearch (file indexer), Xorg session (Wayland only),
 #     gnome-terminal (replaced by GNOME Console).
@@ -386,6 +386,13 @@ packages:
       version: "2.0.1"
     - package: "cups_browsed"
       version: "2.1.0"
+    # ---- vendor printer drivers: Gutenprint (inkjet/photo), HPLIP hpcups (HP), brlaser (Brother laser) ----
+    - package: "gutenprint"
+      version: "5.3.4"
+    - package: "hplip"
+      version: "3.24.4"
+    - package: "brlaser"
+      version: "6.2.8"
     # ---- GNOME Settings and its remaining dependencies ----
     - package: "gnome_online_accounts"
       version: "3.52.2"
@@ -926,6 +933,16 @@ build:
           buildmode: 1
         - task: compile
           package: cups_browsed
+          buildmode: 1
+        # ---- vendor printer drivers: Gutenprint (inkjet/photo), HPLIP hpcups (HP), brlaser (Brother laser) ----
+        - task: compile
+          package: gutenprint
+          buildmode: 1
+        - task: compile
+          package: hplip
+          buildmode: 1
+        - task: compile
+          package: brlaser
           buildmode: 1
         # ---- GNOME Settings and its remaining dependencies ----
         - task: compile

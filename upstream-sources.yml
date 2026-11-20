@@ -989,3 +989,16 @@ cups_filters:
 cups_browsed:
   url: "https://github.com/OpenPrinting/cups-browsed/releases/download/{VERSION}/cups-browsed-{VERSION}.tar.xz"
   subdir: true
+
+# --- desktop-gnome: vendor printer drivers ------------------------------------
+gutenprint:
+  url: "https://downloads.sourceforge.net/gimp-print/gutenprint-{VERSION}.tar.xz"
+  subdir: true
+hplip:
+  url: "https://downloads.sourceforge.net/hplip/hplip-{VERSION}.tar.gz"
+  subdir: true
+# Maintained fork. Use the explicit refs/tags/ archive URL: a branch with the
+# same name makes the short /archive/<tag>/ form return HTTP 300.
+brlaser:
+  url: "https://github.com/Owl-Maintain/brlaser/archive/refs/tags/v{VERSION}.tar.gz"
+  subdir: true
