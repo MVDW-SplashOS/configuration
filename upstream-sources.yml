@@ -374,7 +374,7 @@ gtk4:
   url: "https://download.gnome.org/sources/gtk/4.16/gtk-{VERSION}.tar.xz"
   subdir: true
 libadwaita:
-  url: "https://download.gnome.org/sources/libadwaita/1.5/libadwaita-{VERSION}.tar.xz"
+  url: "https://download.gnome.org/sources/libadwaita/{VERSION_MAJOR}.{VERSION_MINOR}/libadwaita-{VERSION}.tar.xz"
   subdir: true
 mako:
   url: "https://pypi.org/packages/source/M/Mako/mako-{VERSION}.tar.gz"
@@ -449,4 +449,426 @@ dejavu_fonts:
   # DejaVu ships its release tarball as bzip2; the release tag is
   # 'version_2_37' (dots replaced by underscores).
   url: "https://github.com/dejavu-fonts/dejavu-fonts/releases/download/version_{VERSION_SEPARATE_UNDERSCORE}/dejavu-fonts-ttf-{VERSION}.tar.bz2"
+  subdir: true
+
+# --- desktop edition: AppImage runtime and desktop integration ------------
+# fuse 2.x (libfuse2) is what the type-2 AppImage runtime links against.
+fuse:
+  url: "https://github.com/libfuse/libfuse/releases/download/fuse-{VERSION}/fuse-{VERSION}.tar.gz"
+  subdir: true
+
+# The GitHub archive's top level (squashfs-tools-<ver>) contains the tools
+# in a squashfs-tools/ subdirectory; the build script cd's into it.
+squashfs_tools:
+  url: "https://github.com/plougher/squashfs-tools/archive/refs/tags/{VERSION}.tar.gz"
+  subdir: true
+
+desktop_file_utils:
+  url: "https://www.freedesktop.org/software/desktop-file-utils/releases/desktop-file-utils-{VERSION}.tar.xz"
+  subdir: true
+
+shared_mime_info:
+  url: "https://gitlab.freedesktop.org/xdg/shared-mime-info/-/archive/{VERSION}/shared-mime-info-{VERSION}.tar.gz"
+  subdir: true
+
+hicolor_icon_theme:
+  url: "https://icon-theme.freedesktop.org/releases/hicolor-icon-theme-{VERSION}.tar.xz"
+  subdir: true
+
+xdg_user_dirs:
+  # The user-dirs project publishes .tar.gz, not .tar.xz.
+  url: "https://user-dirs.freedesktop.org/releases/xdg-user-dirs-{VERSION}.tar.gz"
+  subdir: true
+
+xdg_utils:
+  url: "https://gitlab.freedesktop.org/xdg/xdg-utils/-/archive/v{VERSION}/xdg-utils-v{VERSION}.tar.gz"
+  subdir: true
+
+# --- desktop-base: Flatpak (the only package manager) ----------------------
+# libfuse 3 keeps the "fuse-<ver>" release naming of fuse 2.
+fuse3:
+  url: "https://github.com/libfuse/libfuse/releases/download/fuse-{VERSION}/fuse-{VERSION}.tar.gz"
+  subdir: true
+libgpg_error:
+  url: "https://www.gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-{VERSION}.tar.bz2"
+  subdir: true
+libgcrypt:
+  url: "https://www.gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-{VERSION}.tar.bz2"
+  subdir: true
+libassuan:
+  url: "https://www.gnupg.org/ftp/gcrypt/libassuan/libassuan-{VERSION}.tar.bz2"
+  subdir: true
+libksba:
+  url: "https://www.gnupg.org/ftp/gcrypt/libksba/libksba-{VERSION}.tar.bz2"
+  subdir: true
+npth:
+  url: "https://www.gnupg.org/ftp/gcrypt/npth/npth-{VERSION}.tar.bz2"
+  subdir: true
+gnupg:
+  url: "https://www.gnupg.org/ftp/gcrypt/gnupg/gnupg-{VERSION}.tar.bz2"
+  subdir: true
+gpgme:
+  url: "https://www.gnupg.org/ftp/gcrypt/gpgme/gpgme-{VERSION}.tar.bz2"
+  subdir: true
+libarchive:
+  url: "https://github.com/libarchive/libarchive/releases/download/v{VERSION}/libarchive-{VERSION}.tar.xz"
+  subdir: true
+libseccomp:
+  url: "https://github.com/seccomp/libseccomp/releases/download/v{VERSION}/libseccomp-{VERSION}.tar.gz"
+  subdir: true
+bubblewrap:
+  url: "https://github.com/containers/bubblewrap/releases/download/v{VERSION}/bubblewrap-{VERSION}.tar.xz"
+  subdir: true
+xdg_dbus_proxy:
+  url: "https://github.com/flatpak/xdg-dbus-proxy/releases/download/{VERSION}/xdg-dbus-proxy-{VERSION}.tar.xz"
+  subdir: true
+duktape:
+  url: "https://duktape.org/duktape-{VERSION}.tar.xz"
+  subdir: true
+polkit:
+  url: "https://github.com/polkit-org/polkit/archive/{VERSION}/polkit-{VERSION}.tar.gz"
+  subdir: true
+json_glib:
+  url: "https://download.gnome.org/sources/json-glib/1.10/json-glib-{VERSION}.tar.xz"
+  subdir: true
+# Release tarballs (libostree-<ver>.tar.xz) include the libglnx/composefs
+# submodules; the GitHub source archive does not.
+ostree:
+  url: "https://github.com/ostreedev/ostree/releases/download/v{VERSION}/libostree-{VERSION}.tar.xz"
+  subdir: true
+# Release tarballs include the meson subprojects (libglnx, variant-schema-
+# compiler); the GitHub source archive does not.
+flatpak:
+  url: "https://github.com/flatpak/flatpak/releases/download/{VERSION}/flatpak-{VERSION}.tar.xz"
+  subdir: true
+
+# --- desktop-gnome: GNOME session and its dependency closure --------------
+cmake:
+  url: "https://cmake.org/files/v{VERSION_MAJOR}.{VERSION_MINOR}/cmake-{VERSION}.tar.gz"
+  subdir: true
+icu:
+  url: "https://github.com/unicode-org/icu/releases/download/release-{VERSION_MAJOR}-{VERSION_MINOR}/icu4c-{VERSION_SEPARATE_UNDERSCORE}-src.tgz"
+  subdir: true
+gobject_introspection:
+  url: "https://download.gnome.org/sources/gobject-introspection/{VERSION_MAJOR}.{VERSION_MINOR}/gobject-introspection-{VERSION}.tar.xz"
+  subdir: true
+util_macros:
+  url: "https://www.x.org/pub/individual/util/util-macros-{VERSION}.tar.xz"
+  subdir: true
+libxau:
+  url: "https://www.x.org/pub/individual/lib/libXau-{VERSION}.tar.xz"
+  subdir: true
+libxdmcp:
+  url: "https://www.x.org/pub/individual/lib/libXdmcp-{VERSION}.tar.xz"
+  subdir: true
+xcb_proto:
+  url: "https://xorg.freedesktop.org/archive/individual/proto/xcb-proto-{VERSION}.tar.xz"
+  subdir: true
+xtrans:
+  url: "https://www.x.org/pub/individual/lib/xtrans-{VERSION}.tar.xz"
+  subdir: true
+libxkbfile:
+  url: "https://www.x.org/pub/individual/lib/libxkbfile-{VERSION}.tar.xz"
+  subdir: true
+libxshmfence:
+  url: "https://www.x.org/pub/individual/lib/libxshmfence-{VERSION}.tar.xz"
+  subdir: true
+libxxf86vm:
+  url: "https://www.x.org/pub/individual/lib/libXxf86vm-{VERSION}.tar.xz"
+  subdir: true
+libfontenc:
+  url: "https://www.x.org/pub/individual/lib/libfontenc-{VERSION}.tar.xz"
+  subdir: true
+libxfont2:
+  url: "https://www.x.org/pub/individual/lib/libXfont2-{VERSION}.tar.xz"
+  subdir: true
+xkbcomp:
+  url: "https://www.x.org/pub/individual/app/xkbcomp-{VERSION}.tar.xz"
+  subdir: true
+xcb_util:
+  url: "https://xcb.freedesktop.org/dist/xcb-util-{VERSION}.tar.xz"
+  subdir: true
+startup_notification:
+  url: "https://www.freedesktop.org/software/startup-notification/releases/startup-notification-{VERSION}.tar.gz"
+  subdir: true
+at_spi2_core:
+  url: "https://download.gnome.org/sources/at-spi2-core/{VERSION_MAJOR}.{VERSION_MINOR}/at-spi2-core-{VERSION}.tar.xz"
+  subdir: true
+# GTK 3.24.43 still lives in the old gtk+ directory.
+gtk3:
+  url: "https://download.gnome.org/sources/gtk+/{VERSION_MAJOR}.{VERSION_MINOR}/gtk+-{VERSION}.tar.xz"
+  subdir: true
+iso_codes:
+  url: "https://salsa.debian.org/iso-codes-team/iso-codes/-/archive/v{VERSION}/iso-codes-v{VERSION}.tar.gz"
+  subdir: true
+libtasn1:
+  url: "https://ftpmirror.gnu.org/libtasn1/libtasn1-{VERSION}.tar.gz"
+  subdir: true
+nettle:
+  url: "https://ftpmirror.gnu.org/nettle/nettle-{VERSION}.tar.gz"
+  subdir: true
+p11_kit:
+  url: "https://github.com/p11-glue/p11-kit/releases/download/{VERSION}/p11-kit-{VERSION}.tar.xz"
+  subdir: true
+gnutls:
+  url: "https://www.gnupg.org/ftp/gcrypt/gnutls/v{VERSION_MAJOR}.{VERSION_MINOR}/gnutls-{VERSION}.tar.xz"
+  subdir: true
+glib_networking:
+  url: "https://download.gnome.org/sources/glib-networking/{VERSION_MAJOR}.{VERSION_MINOR}/glib-networking-{VERSION}.tar.xz"
+  subdir: true
+libpsl:
+  url: "https://github.com/rockdaboot/libpsl/releases/download/{VERSION}/libpsl-{VERSION}.tar.gz"
+  subdir: true
+nghttp2:
+  url: "https://github.com/nghttp2/nghttp2/releases/download/v{VERSION}/nghttp2-{VERSION}.tar.xz"
+  subdir: true
+linux_pam:
+  url: "https://github.com/linux-pam/linux-pam/releases/download/v{VERSION}/Linux-PAM-{VERSION}.tar.xz"
+  subdir: true
+gcr3:
+  url: "https://download.gnome.org/sources/gcr/{VERSION_MAJOR}.{VERSION_MINOR}/gcr-{VERSION}.tar.xz"
+  subdir: true
+libogg:
+  url: "https://github.com/xiph/ogg/releases/download/v{VERSION}/libogg-{VERSION}.tar.xz"
+  subdir: true
+libvorbis:
+  url: "https://github.com/xiph/vorbis/releases/download/v{VERSION}/libvorbis-{VERSION}.tar.xz"
+  subdir: true
+libsndfile:
+  url: "https://github.com/libsndfile/libsndfile/releases/download/{VERSION}/libsndfile-{VERSION}.tar.xz"
+  subdir: true
+lua:
+  url: "https://www.lua.org/ftp/lua-{VERSION}.tar.gz"
+  subdir: true
+lcms2:
+  url: "https://github.com/mm2/Little-CMS/releases/download/lcms{VERSION}/lcms2-{VERSION}.tar.gz"
+  subdir: true
+libusb:
+  url: "https://github.com/libusb/libusb/releases/download/v{VERSION}/libusb-{VERSION}.tar.bz2"
+  subdir: true
+libgusb:
+  url: "https://github.com/hughsie/libgusb/releases/download/{VERSION}/libgusb-{VERSION}.tar.xz"
+  subdir: true
+libndp:
+  url: "https://github.com/jpirko/libndp/archive/v{VERSION}/libndp-{VERSION}.tar.gz"
+  subdir: true
+libnl:
+  url: "https://github.com/thom311/libnl/releases/download/libnl{VERSION_SEPARATE_UNDERSCORE}/libnl-{VERSION}.tar.gz"
+  subdir: true
+libnotify:
+  url: "https://download.gnome.org/sources/libnotify/{VERSION_MAJOR}.{VERSION_MINOR}/libnotify-{VERSION}.tar.xz"
+  subdir: true
+libgweather:
+  url: "https://download.gnome.org/sources/libgweather/{VERSION_MAJOR}.{VERSION_MINOR}/libgweather-{VERSION}.tar.xz"
+  subdir: true
+geocode_glib:
+  url: "https://download.gnome.org/sources/geocode-glib/{VERSION_MAJOR}.{VERSION_MINOR}/geocode-glib-{VERSION}.tar.xz"
+  subdir: true
+libgtop:
+  url: "https://download.gnome.org/sources/libgtop/{VERSION_MAJOR}.{VERSION_MINOR}/libgtop-{VERSION}.tar.xz"
+  subdir: true
+ibus:
+  url: "https://github.com/ibus/ibus/releases/download/{VERSION}/ibus-{VERSION}.tar.gz"
+  subdir: true
+evolution_data_server:
+  url: "https://download.gnome.org/sources/evolution-data-server/{VERSION_MAJOR}.{VERSION_MINOR}/evolution-data-server-{VERSION}.tar.xz"
+  subdir: true
+libical:
+  url: "https://github.com/libical/libical/releases/download/v{VERSION}/libical-{VERSION}.tar.gz"
+  subdir: true
+nspr:
+  url: "https://archive.mozilla.org/pub/nspr/releases/v{VERSION}/src/nspr-{VERSION}.tar.gz"
+  subdir: true
+nss:
+  url: "https://archive.mozilla.org/pub/security/nss/releases/NSS_{VERSION_SEPARATE_UNDERSCORE}_RTM/src/nss-{VERSION}.tar.gz"
+  subdir: true
+tinysparql:
+  url: "https://download.gnome.org/sources/tinysparql/{VERSION_MAJOR}.{VERSION_MINOR}/tinysparql-{VERSION}.tar.xz"
+  subdir: true
+gnome_autoar:
+  url: "https://download.gnome.org/sources/gnome-autoar/{VERSION_MAJOR}.{VERSION_MINOR}/gnome-autoar-{VERSION}.tar.xz"
+  subdir: true
+libportal:
+  url: "https://github.com/flatpak/libportal/releases/download/{VERSION}/libportal-{VERSION}.tar.xz"
+  subdir: true
+gstreamer:
+  url: "https://gstreamer.freedesktop.org/src/gstreamer/gstreamer-{VERSION}.tar.xz"
+  subdir: true
+gst_plugins_base:
+  url: "https://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-{VERSION}.tar.xz"
+  subdir: true
+# Firefox ESR source; only js/src is built (SpiderMonkey).
+mozjs:
+  url: "https://archive.mozilla.org/pub/firefox/releases/{VERSION}/source/firefox-{VERSION}.source.tar.xz"
+  subdir: true
+make_ca:
+  url: "https://github.com/lfs-book/make-ca/archive/v{VERSION}/make-ca-{VERSION}.tar.gz"
+  subdir: true
+python_attrs:
+  url: "https://files.pythonhosted.org/packages/source/a/attrs/attrs-{VERSION}.tar.gz"
+  subdir: true
+pygobject:
+  url: "https://download.gnome.org/sources/pygobject/{VERSION_MAJOR}.{VERSION_MINOR}/pygobject-{VERSION}.tar.xz"
+  subdir: true
+gsettings_desktop_schemas:
+  url: "https://download.gnome.org/sources/gsettings-desktop-schemas/{VERSION_MAJOR}/gsettings-desktop-schemas-{VERSION}.tar.xz"
+  subdir: true
+adwaita_icon_theme:
+  url: "https://download.gnome.org/sources/adwaita-icon-theme/{VERSION_MAJOR}/adwaita-icon-theme-{VERSION}.tar.xz"
+  subdir: true
+gnome_backgrounds:
+  url: "https://download.gnome.org/sources/gnome-backgrounds/{VERSION_MAJOR}/gnome-backgrounds-{VERSION}.tar.xz"
+  subdir: true
+cantarell_fonts:
+  url: "https://download.gnome.org/sources/cantarell-fonts/{VERSION_MAJOR}.{VERSION_MINOR}/cantarell-fonts-{VERSION}.tar.xz"
+  subdir: true
+gjs:
+  url: "https://download.gnome.org/sources/gjs/{VERSION_MAJOR}.{VERSION_MINOR}/gjs-{VERSION}.tar.xz"
+  subdir: true
+mutter:
+  url: "https://download.gnome.org/sources/mutter/{VERSION_MAJOR}/mutter-{VERSION}.tar.xz"
+  subdir: true
+gnome_shell:
+  url: "https://download.gnome.org/sources/gnome-shell/{VERSION_MAJOR}/gnome-shell-{VERSION}.tar.xz"
+  subdir: true
+gnome_session:
+  url: "https://download.gnome.org/sources/gnome-session/{VERSION_MAJOR}/gnome-session-{VERSION}.tar.xz"
+  subdir: true
+gdm:
+  url: "https://download.gnome.org/sources/gdm/{VERSION_MAJOR}/gdm-{VERSION}.tar.xz"
+  subdir: true
+gnome_settings_daemon:
+  url: "https://download.gnome.org/sources/gnome-settings-daemon/{VERSION_MAJOR}/gnome-settings-daemon-{VERSION}.tar.xz"
+  subdir: true
+nautilus:
+  url: "https://download.gnome.org/sources/nautilus/{VERSION_MAJOR}/nautilus-{VERSION}.tar.xz"
+  subdir: true
+gnome_console:
+  url: "https://download.gnome.org/sources/gnome-console/{VERSION_MAJOR}/gnome-console-{VERSION}.tar.xz"
+  subdir: true
+gnome_keyring:
+  url: "https://download.gnome.org/sources/gnome-keyring/{VERSION_MAJOR}/gnome-keyring-{VERSION}.tar.xz"
+  subdir: true
+gnome_software:
+  url: "https://download.gnome.org/sources/gnome-software/{VERSION_MAJOR}/gnome-software-{VERSION}.tar.xz"
+  subdir: true
+xdg_desktop_portal:
+  url: "https://github.com/flatpak/xdg-desktop-portal/releases/download/{VERSION}/xdg-desktop-portal-{VERSION}.tar.xz"
+  subdir: true
+xdg_desktop_portal_gnome:
+  url: "https://download.gnome.org/sources/xdg-desktop-portal-gnome/{VERSION_MAJOR}/xdg-desktop-portal-gnome-{VERSION}.tar.xz"
+  subdir: true
+pipewire:
+  url: "https://gitlab.freedesktop.org/pipewire/pipewire/-/archive/{VERSION}/pipewire-{VERSION}.tar.gz"
+  subdir: true
+wireplumber:
+  url: "https://gitlab.freedesktop.org/pipewire/wireplumber/-/archive/{VERSION}/wireplumber-{VERSION}.tar.gz"
+  subdir: true
+dconf:
+  url: "https://download.gnome.org/sources/dconf/{VERSION_MAJOR}.{VERSION_MINOR}/dconf-{VERSION}.tar.xz"
+  subdir: true
+libgudev:
+  url: "https://download.gnome.org/sources/libgudev/{VERSION}/libgudev-{VERSION}.tar.xz"
+  subdir: true
+libwacom:
+  url: "https://github.com/linuxwacom/libwacom/releases/download/libwacom-{VERSION}/libwacom-{VERSION}.tar.xz"
+  subdir: true
+libei:
+  url: "https://gitlab.freedesktop.org/libinput/libei/-/archive/{VERSION}/libei-{VERSION}.tar.gz"
+  subdir: true
+libcanberra:
+  url: "https://0pointer.de/lennart/projects/libcanberra/libcanberra-{VERSION}.tar.xz"
+  subdir: true
+alsa_lib:
+  url: "https://www.alsa-project.org/files/pub/lib/alsa-lib-{VERSION}.tar.bz2"
+  subdir: true
+libpulse:
+  url: "https://www.freedesktop.org/software/pulseaudio/releases/pulseaudio-{VERSION}.tar.xz"
+  subdir: true
+gnome_desktop:
+  url: "https://download.gnome.org/sources/gnome-desktop/{VERSION_MAJOR}/gnome-desktop-{VERSION}.tar.xz"
+  subdir: true
+vte:
+  url: "https://download.gnome.org/sources/vte/{VERSION_MAJOR}.{VERSION_MINOR}/vte-{VERSION}.tar.xz"
+  subdir: true
+accountsservice:
+  url: "https://www.freedesktop.org/software/accountsservice/accountsservice-{VERSION}.tar.xz"
+  subdir: true
+upower:
+  url: "https://gitlab.freedesktop.org/upower/upower/-/archive/v{VERSION}/upower-v{VERSION}.tar.gz"
+  subdir: true
+colord:
+  url: "https://www.freedesktop.org/software/colord/releases/colord-{VERSION}.tar.xz"
+  subdir: true
+geoclue:
+  url: "https://gitlab.freedesktop.org/geoclue/geoclue/-/archive/{VERSION}/geoclue-{VERSION}.tar.gz"
+  subdir: true
+networkmanager:
+  url: "https://download.gnome.org/sources/NetworkManager/{VERSION_MAJOR}.{VERSION_MINOR}/NetworkManager-{VERSION}.tar.xz"
+  subdir: true
+wpa_supplicant:
+  url: "https://w1.fi/releases/wpa_supplicant-{VERSION}.tar.gz"
+  subdir: true
+bluez:
+  url: "https://www.kernel.org/pub/linux/bluetooth/bluez-{VERSION}.tar.xz"
+  subdir: true
+libsecret:
+  url: "https://download.gnome.org/sources/libsecret/{VERSION_MAJOR}.{VERSION_MINOR}/libsecret-{VERSION}.tar.xz"
+  subdir: true
+libsoup3:
+  url: "https://download.gnome.org/sources/libsoup/{VERSION_MAJOR}.{VERSION_MINOR}/libsoup-{VERSION}.tar.xz"
+  subdir: true
+gcr:
+  url: "https://download.gnome.org/sources/gcr/{VERSION_MAJOR}.{VERSION_MINOR}/gcr-{VERSION}.tar.xz"
+  subdir: true
+xorgproto:
+  url: "https://www.x.org/pub/individual/proto/xorgproto-{VERSION}.tar.xz"
+  subdir: true
+libx11:
+  url: "https://www.x.org/pub/individual/lib/libX11-{VERSION}.tar.xz"
+  subdir: true
+libxcb:
+  url: "https://xorg.freedesktop.org/archive/individual/lib/libxcb-{VERSION}.tar.xz"
+  subdir: true
+libxext:
+  url: "https://www.x.org/pub/individual/lib/libXext-{VERSION}.tar.xz"
+  subdir: true
+libxrender:
+  url: "https://www.x.org/pub/individual/lib/libXrender-{VERSION}.tar.xz"
+  subdir: true
+libxi:
+  url: "https://www.x.org/pub/individual/lib/libXi-{VERSION}.tar.xz"
+  subdir: true
+libxtst:
+  url: "https://www.x.org/pub/individual/lib/libXtst-{VERSION}.tar.xz"
+  subdir: true
+libxcursor:
+  url: "https://www.x.org/pub/individual/lib/libXcursor-{VERSION}.tar.xz"
+  subdir: true
+libxrandr:
+  url: "https://www.x.org/pub/individual/lib/libXrandr-{VERSION}.tar.xz"
+  subdir: true
+libxinerama:
+  url: "https://www.x.org/pub/individual/lib/libXinerama-{VERSION}.tar.xz"
+  subdir: true
+libxcomposite:
+  url: "https://www.x.org/pub/individual/lib/libXcomposite-{VERSION}.tar.xz"
+  subdir: true
+libxdamage:
+  url: "https://www.x.org/pub/individual/lib/libXdamage-{VERSION}.tar.xz"
+  subdir: true
+libxfixes:
+  url: "https://www.x.org/pub/individual/lib/libXfixes-{VERSION}.tar.xz"
+  subdir: true
+libice:
+  url: "https://www.x.org/pub/individual/lib/libICE-{VERSION}.tar.xz"
+  subdir: true
+libsm:
+  url: "https://www.x.org/pub/individual/lib/libSM-{VERSION}.tar.xz"
+  subdir: true
+xwayland:
+  url: "https://www.x.org/pub/individual/xserver/xwayland-{VERSION}.tar.xz"
+  subdir: true
+libxcvt:
+  url: "https://www.x.org/pub/individual/lib/libxcvt-{VERSION}.tar.xz"
   subdir: true

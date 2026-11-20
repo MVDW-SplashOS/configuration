@@ -1,0 +1,810 @@
+# ---------------------------------------------------------------------------
+# SplashOS "desktop-gnome" edition layer  (temporary session)
+#
+# GNOME 47 is the desktop session for now; it will be replaced later. It is
+# a layer of its own so replacing it never touches the immutable / Flatpak
+# / AppImage policy (desktop-base.yml) or the image configuration
+# (desktop.yml).
+#
+# Chain: molecule -> distro -> desktop-base -> desktop-gnome -> desktop
+# To swap the session later: add desktop-<session>.yml with
+# `parentconfig: desktop-base` and point desktop.yml's parentconfig at it.
+#
+# What this layer builds: GNOME Shell on Mutter (Wayland + Xwayland), GDM,
+# gnome-settings-daemon, gnome-session, PipeWire audio, NetworkManager,
+# BlueZ, the GNOME portals, Files (Nautilus), Console and GNOME Software
+# (the Flatpak store). The task list is in dependency order.
+#
+# buildmode 2 entries rebuild packages that the bootloader edition builds
+# without GObject-Introspection/X11 (glib, gdk-pixbuf in desktop-base;
+# harfbuzz, cairo, gobject-introspection, graphene, pango, libxkbcommon,
+# mesa, libepoxy, gtk4 here) and systemd with PAM.
+#
+# NOT built yet (follow-up):
+#   - gnome-control-center (Settings): hard-requires CUPS, plus
+#     gnome-online-accounts, gnome-bluetooth, libnma, udisks2, libpwquality,
+#     ModemManager, ...
+#   - gnome-initial-setup: the image ships a preconfigured user instead.
+#   - localsearch (file indexer), Xorg session (Wayland only),
+#     gnome-terminal (replaced by GNOME Console).
+# ---------------------------------------------------------------------------
+
+parentconfig: desktop-base
+
+packages:
+    # ---- toolchain / data needed by the rest of the layer ----
+    - package: "cmake"
+      version: "3.31.2"
+    - package: "icu"
+      version: "76.1"
+    - package: "rust"
+      version: "1.100.0"
+    - package: "python_attrs"
+      version: "24.2.0"
+    # ---- X11 client stack (Xwayland, Mutter, GTK3/GTK4 X11 backends, Mesa GLX) ----
+    - package: "util_macros"
+      version: "1.20.2"
+    - package: "xorgproto"
+      version: "2024.1"
+    - package: "libxau"
+      version: "1.0.12"
+    - package: "libxdmcp"
+      version: "1.1.5"
+    - package: "xcb_proto"
+      version: "1.17.0"
+    - package: "libxcb"
+      version: "1.17.0"
+    - package: "xtrans"
+      version: "1.5.2"
+    - package: "libx11"
+      version: "1.8.10"
+    - package: "libxext"
+      version: "1.3.6"
+    - package: "libxfixes"
+      version: "6.0.1"
+    - package: "libxrender"
+      version: "0.9.11"
+    - package: "libxi"
+      version: "1.8.2"
+    - package: "libxtst"
+      version: "1.2.4"
+    - package: "libxcursor"
+      version: "1.2.3"
+    - package: "libxrandr"
+      version: "1.5.4"
+    - package: "libxinerama"
+      version: "1.1.5"
+    - package: "libxcomposite"
+      version: "0.4.6"
+    - package: "libxdamage"
+      version: "1.1.6"
+    - package: "libice"
+      version: "1.1.1"
+    - package: "libsm"
+      version: "1.2.4"
+    - package: "libxkbfile"
+      version: "1.1.3"
+    - package: "libxshmfence"
+      version: "1.3.3"
+    - package: "libxxf86vm"
+      version: "1.1.6"
+    - package: "libfontenc"
+      version: "1.1.8"
+    - package: "libxfont2"
+      version: "2.0.7"
+    - package: "libxcvt"
+      version: "0.1.3"
+    - package: "xcb_util"
+      version: "0.4.1"
+    - package: "startup_notification"
+      version: "0.12"
+    # ---- graphics / text stack; buildmode 2 = rebuilt with introspection and/or X11 ----
+    - package: "freetype"
+      version: "2.13.3"
+    - package: "fribidi"
+      version: "1.0.16"
+    - package: "harfbuzz"
+      version: "10.4.0"
+    - package: "fontconfig"
+      version: "2.15.0"
+    - package: "pixman"
+      version: "0.44.2"
+    - package: "cairo"
+      version: "1.18.4"
+    - package: "gobject_introspection"
+      version: "1.84.0"
+    - package: "graphene"
+      version: "1.10.8"
+    - package: "pango"
+      version: "1.56.3"
+    - package: "libdrm"
+      version: "2.4.125"
+    - package: "wayland"
+      version: "1.23.1"
+    - package: "wayland_protocols"
+      version: "1.41"
+    - package: "xkeyboard_config"
+      version: "2.44"
+    - package: "libxkbcommon"
+      version: "1.8.1"
+    - package: "xkbcomp"
+      version: "1.4.7"
+    - package: "jpeg"
+      version: "9f"
+    - package: "tiff"
+      version: "4.4.0"
+    - package: "mako"
+      version: "1.3.9"
+    - package: "pyyaml"
+      version: "6.0.2"
+    - package: "mesa"
+      version: "25.0.1"
+    - package: "libepoxy"
+      version: "1.5.10"
+    # ---- toolkits ----
+    - package: "libsass"
+      version: "3.6.5"
+    - package: "sassc"
+      version: "3.6.2"
+    - package: "iso_codes"
+      version: "4.17.0"
+    - package: "at_spi2_core"
+      version: "2.54.0"
+    - package: "gtk3"
+      version: "3.24.43"
+    - package: "gtk4"
+      version: "4.16.12"
+    - package: "libadwaita"
+      version: "1.6.2"
+    # ---- input / display data ----
+    - package: "libevdev"
+      version: "1.13.4"
+    - package: "mtdev"
+      version: "1.1.7"
+    - package: "libinput"
+      version: "1.27.1"
+    - package: "hwdata"
+      version: "0.390"
+    - package: "libdisplay-info"
+      version: "0.2.0"
+    # ---- fonts, icons, schemas ----
+    - package: "dejavu_fonts"
+      version: "2.37"
+    - package: "cantarell_fonts"
+      version: "0.303.1"
+    - package: "gsettings_desktop_schemas"
+      version: "47.1"
+    - package: "adwaita_icon_theme"
+      version: "47.0"
+    - package: "gnome_backgrounds"
+      version: "47.0"
+    - package: "dconf"
+      version: "0.40.0"
+    # ---- TLS + HTTP (trust store: p11-kit/make-ca from desktop-base) ----
+    - package: "nettle"
+      version: "3.10.1"
+    - package: "gnutls"
+      version: "3.8.8"
+    - package: "glib_networking"
+      version: "2.80.1"
+    - package: "libpsl"
+      version: "0.21.5"
+    - package: "nghttp2"
+      version: "1.64.0"
+    - package: "libsoup3"
+      version: "3.6.1"
+    # ---- PAM; systemd is rebuilt with PAM (buildmode 2) so logins become logind sessions ----
+    - package: "linux_pam"
+      version: "1.7.0"
+    - package: "systemd"
+      version: "261.2"
+    # ---- secrets / keyring ----
+    - package: "libsecret"
+      version: "0.21.4"
+    - package: "gcr"
+      version: "4.3.0"
+    - package: "gcr3"
+      version: "3.41.2"
+    - package: "gnome_keyring"
+      version: "46.2"
+    # ---- audio / media ----
+    - package: "alsa_lib"
+      version: "1.2.13"
+    - package: "libogg"
+      version: "1.3.5"
+    - package: "libvorbis"
+      version: "1.3.7"
+    - package: "libsndfile"
+      version: "1.2.2"
+    - package: "libpulse"
+      version: "17.0"
+    - package: "libcanberra"
+      version: "0.30"
+    - package: "lua"
+      version: "5.4.7"
+    - package: "pipewire"
+      version: "1.2.7"
+    - package: "wireplumber"
+      version: "0.5.7"
+    - package: "gstreamer"
+      version: "1.24.10"
+    - package: "gst_plugins_base"
+      version: "1.24.10"
+    # ---- hardware / system services ----
+    - package: "libgudev"
+      version: "238"
+    - package: "libwacom"
+      version: "2.14.0"
+    - package: "libei"
+      version: "1.3.0"
+    - package: "libusb"
+      version: "1.0.27"
+    - package: "libgusb"
+      version: "0.4.9"
+    - package: "lcms2"
+      version: "2.16"
+    - package: "colord"
+      version: "1.4.7"
+    - package: "upower"
+      version: "1.90.6"
+    - package: "accountsservice"
+      version: "23.13.9"
+    - package: "libnotify"
+      version: "0.8.3"
+    - package: "pygobject"
+      version: "3.50.0"
+    - package: "geocode_glib"
+      version: "3.26.4"
+    - package: "libgweather"
+      version: "4.4.4"
+    - package: "geoclue"
+      version: "2.7.2"
+    - package: "libnl"
+      version: "3.11.0"
+    - package: "libndp"
+      version: "1.9"
+    - package: "wpa_supplicant"
+      version: "2.11"
+    - package: "networkmanager"
+      version: "1.50.0"
+    - package: "bluez"
+      version: "5.79"
+    # ---- GNOME libraries ----
+    - package: "gnome_desktop"
+      version: "44.0"
+    - package: "vte"
+      version: "0.78.1"
+    - package: "libgtop"
+      version: "2.41.3"
+    - package: "ibus"
+      version: "1.5.31"
+    - package: "nspr"
+      version: "4.36"
+    - package: "nss"
+      version: "3.107"
+    - package: "libical"
+      version: "3.0.19"
+    - package: "evolution_data_server"
+      version: "3.54.3"
+    - package: "tinysparql"
+      version: "3.8.2"
+    - package: "gnome_autoar"
+      version: "0.4.5"
+    - package: "libportal"
+      version: "0.8.1"
+    # ---- the session ----
+    - package: "mozjs"
+      version: "128.5.1esr"
+    - package: "gjs"
+      version: "1.82.1"
+    - package: "xwayland"
+      version: "24.1.4"
+    - package: "mutter"
+      version: "47.2"
+    - package: "gnome_shell"
+      version: "47.2"
+    - package: "gnome_settings_daemon"
+      version: "47.2"
+    - package: "gnome_session"
+      version: "47.0.1"
+    - package: "gdm"
+      version: "47.0"
+    # ---- portals (Flatpak integration) and apps ----
+    - package: "xdg_desktop_portal"
+      version: "1.20.0"
+    - package: "xdg_desktop_portal_gnome"
+      version: "47.1"
+    - package: "nautilus"
+      version: "47.1"
+    - package: "gnome_console"
+      version: "47.1"
+    - package: "gnome_software"
+      version: "47.2"
+
+build:
+    - task: change_enviroment
+      enviroment: chroot
+      build:
+        # ---- toolchain / data needed by the rest of the layer ----
+        - task: compile
+          package: cmake
+          buildmode: 1
+        - task: compile
+          package: icu
+          buildmode: 1
+        - task: compile
+          package: rust
+          buildmode: 1
+        - task: compile
+          package: python_attrs
+          buildmode: 1
+        # ---- X11 client stack (Xwayland, Mutter, GTK3/GTK4 X11 backends, Mesa GLX) ----
+        - task: compile
+          package: util_macros
+          buildmode: 1
+        - task: compile
+          package: xorgproto
+          buildmode: 1
+        - task: compile
+          package: libxau
+          buildmode: 1
+        - task: compile
+          package: libxdmcp
+          buildmode: 1
+        - task: compile
+          package: xcb_proto
+          buildmode: 1
+        - task: compile
+          package: libxcb
+          buildmode: 1
+        - task: compile
+          package: xtrans
+          buildmode: 1
+        - task: compile
+          package: libx11
+          buildmode: 1
+        - task: compile
+          package: libxext
+          buildmode: 1
+        - task: compile
+          package: libxfixes
+          buildmode: 1
+        - task: compile
+          package: libxrender
+          buildmode: 1
+        - task: compile
+          package: libxi
+          buildmode: 1
+        - task: compile
+          package: libxtst
+          buildmode: 1
+        - task: compile
+          package: libxcursor
+          buildmode: 1
+        - task: compile
+          package: libxrandr
+          buildmode: 1
+        - task: compile
+          package: libxinerama
+          buildmode: 1
+        - task: compile
+          package: libxcomposite
+          buildmode: 1
+        - task: compile
+          package: libxdamage
+          buildmode: 1
+        - task: compile
+          package: libice
+          buildmode: 1
+        - task: compile
+          package: libsm
+          buildmode: 1
+        - task: compile
+          package: libxkbfile
+          buildmode: 1
+        - task: compile
+          package: libxshmfence
+          buildmode: 1
+        - task: compile
+          package: libxxf86vm
+          buildmode: 1
+        - task: compile
+          package: libfontenc
+          buildmode: 1
+        - task: compile
+          package: libxfont2
+          buildmode: 1
+        - task: compile
+          package: libxcvt
+          buildmode: 1
+        - task: compile
+          package: xcb_util
+          buildmode: 1
+        - task: compile
+          package: startup_notification
+          buildmode: 1
+        # ---- graphics / text stack; buildmode 2 = rebuilt with introspection and/or X11 ----
+        - task: compile
+          package: freetype
+          buildmode: 1
+        - task: compile
+          package: fribidi
+          buildmode: 1
+        - task: compile
+          package: harfbuzz
+          buildmode: 2
+        - task: compile
+          package: fontconfig
+          buildmode: 1
+        - task: compile
+          package: pixman
+          buildmode: 1
+        - task: compile
+          package: cairo
+          buildmode: 2
+        - task: compile
+          package: gobject_introspection
+          buildmode: 2
+        - task: compile
+          package: graphene
+          buildmode: 2
+        - task: compile
+          package: pango
+          buildmode: 2
+        - task: compile
+          package: libdrm
+          buildmode: 1
+        - task: compile
+          package: wayland
+          buildmode: 1
+        - task: compile
+          package: wayland_protocols
+          buildmode: 1
+        - task: compile
+          package: xkeyboard_config
+          buildmode: 1
+        - task: compile
+          package: libxkbcommon
+          buildmode: 2
+        - task: compile
+          package: xkbcomp
+          buildmode: 1
+        - task: compile
+          package: jpeg
+          buildmode: 1
+        - task: compile
+          package: tiff
+          buildmode: 1
+        - task: compile
+          package: mako
+          buildmode: 1
+        - task: compile
+          package: pyyaml
+          buildmode: 1
+        - task: compile
+          package: mesa
+          buildmode: 2
+        - task: compile
+          package: libepoxy
+          buildmode: 2
+        # ---- toolkits ----
+        - task: compile
+          package: libsass
+          buildmode: 1
+        - task: compile
+          package: sassc
+          buildmode: 1
+        - task: compile
+          package: iso_codes
+          buildmode: 1
+        - task: compile
+          package: at_spi2_core
+          buildmode: 1
+        - task: compile
+          package: gtk3
+          buildmode: 1
+        - task: compile
+          package: gtk4
+          buildmode: 2
+        - task: compile
+          package: libadwaita
+          buildmode: 1
+        # ---- input / display data ----
+        - task: compile
+          package: libevdev
+          buildmode: 1
+        - task: compile
+          package: mtdev
+          buildmode: 1
+        - task: compile
+          package: libinput
+          buildmode: 1
+        - task: compile
+          package: hwdata
+          buildmode: 1
+        - task: compile
+          package: libdisplay-info
+          buildmode: 1
+        # ---- fonts, icons, schemas ----
+        - task: compile
+          package: dejavu_fonts
+          buildmode: 1
+        - task: compile
+          package: cantarell_fonts
+          buildmode: 1
+        - task: compile
+          package: gsettings_desktop_schemas
+          buildmode: 1
+        - task: compile
+          package: adwaita_icon_theme
+          buildmode: 1
+        - task: compile
+          package: gnome_backgrounds
+          buildmode: 1
+        - task: compile
+          package: dconf
+          buildmode: 1
+        # ---- TLS + HTTP (trust store: p11-kit/make-ca from desktop-base) ----
+        - task: compile
+          package: nettle
+          buildmode: 1
+        - task: compile
+          package: gnutls
+          buildmode: 1
+        - task: compile
+          package: glib_networking
+          buildmode: 1
+        - task: compile
+          package: libpsl
+          buildmode: 1
+        - task: compile
+          package: nghttp2
+          buildmode: 1
+        - task: compile
+          package: libsoup3
+          buildmode: 1
+        # ---- PAM; systemd is rebuilt with PAM (buildmode 2) so logins become logind sessions ----
+        - task: compile
+          package: linux_pam
+          buildmode: 1
+        - task: compile
+          package: systemd
+          buildmode: 2
+        # ---- secrets / keyring ----
+        - task: compile
+          package: libsecret
+          buildmode: 1
+        - task: compile
+          package: gcr
+          buildmode: 1
+        - task: compile
+          package: gcr3
+          buildmode: 1
+        - task: compile
+          package: gnome_keyring
+          buildmode: 1
+        # ---- audio / media ----
+        - task: compile
+          package: alsa_lib
+          buildmode: 1
+        - task: compile
+          package: libogg
+          buildmode: 1
+        - task: compile
+          package: libvorbis
+          buildmode: 1
+        - task: compile
+          package: libsndfile
+          buildmode: 1
+        - task: compile
+          package: libpulse
+          buildmode: 1
+        - task: compile
+          package: libcanberra
+          buildmode: 1
+        - task: compile
+          package: lua
+          buildmode: 1
+        - task: compile
+          package: pipewire
+          buildmode: 1
+        - task: compile
+          package: wireplumber
+          buildmode: 1
+        - task: compile
+          package: gstreamer
+          buildmode: 1
+        - task: compile
+          package: gst_plugins_base
+          buildmode: 1
+        # ---- hardware / system services ----
+        - task: compile
+          package: libgudev
+          buildmode: 1
+        - task: compile
+          package: libwacom
+          buildmode: 1
+        - task: compile
+          package: libei
+          buildmode: 1
+        - task: compile
+          package: libusb
+          buildmode: 1
+        - task: compile
+          package: libgusb
+          buildmode: 1
+        - task: compile
+          package: lcms2
+          buildmode: 1
+        - task: compile
+          package: colord
+          buildmode: 1
+        - task: compile
+          package: upower
+          buildmode: 1
+        - task: compile
+          package: accountsservice
+          buildmode: 1
+        - task: compile
+          package: libnotify
+          buildmode: 1
+        - task: compile
+          package: pygobject
+          buildmode: 1
+        - task: compile
+          package: geocode_glib
+          buildmode: 1
+        - task: compile
+          package: libgweather
+          buildmode: 1
+        - task: compile
+          package: geoclue
+          buildmode: 1
+        - task: compile
+          package: libnl
+          buildmode: 1
+        - task: compile
+          package: libndp
+          buildmode: 1
+        - task: compile
+          package: wpa_supplicant
+          buildmode: 1
+        - task: compile
+          package: networkmanager
+          buildmode: 1
+        - task: compile
+          package: bluez
+          buildmode: 1
+        # ---- GNOME libraries ----
+        - task: compile
+          package: gnome_desktop
+          buildmode: 1
+        - task: compile
+          package: vte
+          buildmode: 1
+        - task: compile
+          package: libgtop
+          buildmode: 1
+        - task: compile
+          package: ibus
+          buildmode: 1
+        - task: compile
+          package: nspr
+          buildmode: 1
+        - task: compile
+          package: nss
+          buildmode: 1
+        - task: compile
+          package: libical
+          buildmode: 1
+        - task: compile
+          package: evolution_data_server
+          buildmode: 1
+        - task: compile
+          package: tinysparql
+          buildmode: 1
+        - task: compile
+          package: gnome_autoar
+          buildmode: 1
+        - task: compile
+          package: libportal
+          buildmode: 1
+        # ---- the session ----
+        - task: compile
+          package: mozjs
+          buildmode: 1
+        - task: compile
+          package: gjs
+          buildmode: 1
+        - task: compile
+          package: xwayland
+          buildmode: 1
+        - task: compile
+          package: mutter
+          buildmode: 1
+        - task: compile
+          package: gnome_shell
+          buildmode: 1
+        - task: compile
+          package: gnome_settings_daemon
+          buildmode: 1
+        - task: compile
+          package: gnome_session
+          buildmode: 1
+        - task: compile
+          package: gdm
+          buildmode: 1
+        # ---- portals (Flatpak integration) and apps ----
+        - task: compile
+          package: xdg_desktop_portal
+          buildmode: 1
+        - task: compile
+          package: xdg_desktop_portal_gnome
+          buildmode: 1
+        - task: compile
+          package: nautilus
+          buildmode: 1
+        - task: compile
+          package: gnome_console
+          buildmode: 1
+        - task: compile
+          package: gnome_software
+          buildmode: 1
+
+        - task: custom
+          commands:
+           - |
+            # ---- system services ---------------------------------------------
+            systemctl enable NetworkManager.service
+            systemctl enable bluetooth.service
+            systemctl enable upower.service
+            systemctl enable accounts-daemon.service
+            # wpa_supplicant/colord/geoclue/polkit are D-Bus activated.
+
+            # The OS root is immutable (/etc is a volatile overlay): keep
+            # Wi-Fi/VPN profiles on the persistent /var instead.
+            install -dv -m755 /etc/NetworkManager/conf.d
+            cat > /etc/NetworkManager/conf.d/10-splashos-persistent.conf << "EOF"
+            [keyfile]
+            path=/var/lib/NetworkManager/system-connections
+            EOF
+
+            # ---- per-user services (all users) --------------------------------
+            # PipeWire is the only sound server (pipewire-pulse speaks the
+            # PulseAudio protocol for libpulse clients).
+            systemctl --global enable pipewire.socket pipewire-pulse.socket wireplumber.service
+            systemctl --global enable gcr-ssh-agent.socket || true
+
+            # ---- caches for the read-only image -------------------------------
+            # Everything below is normally refreshed by package-manager
+            # hooks; the image is immutable, so do it once at build time.
+            glib-compile-schemas /usr/share/glib-2.0/schemas
+            gtk-update-icon-cache -qtf /usr/share/icons/hicolor || true
+            gtk-update-icon-cache -qtf /usr/share/icons/Adwaita || true
+            gtk-query-immodules-3.0 --update-cache || true
+            gdk-pixbuf-query-loaders --update-cache || true
+            gio-querymodules /usr/lib/gio/modules || true
+            update-desktop-database /usr/share/applications || true
+            update-mime-database /usr/share/mime || true
+            fc-cache -f || true
+            ldconfig
+
+            # ---- GNOME login -------------------------------------------------
+            install -dv -m755 /etc/gdm
+            cat > /etc/gdm/custom.conf << "EOF"
+            [daemon]
+            AutomaticLoginEnable=True
+            AutomaticLogin=splash
+            WaylandEnable=true
+
+            [security]
+
+            [xdmcp]
+
+            [chooser]
+
+            [debug]
+            EOF
+
+            systemctl enable gdm.service
+            systemctl set-default graphical.target

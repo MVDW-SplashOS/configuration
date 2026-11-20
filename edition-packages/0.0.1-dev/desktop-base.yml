@@ -1,0 +1,466 @@
+# ---------------------------------------------------------------------------
+# SplashOS "desktop-base" edition layer
+#
+# Session-independent part of the desktop: the immutable OS policy, Flatpak
+# as the ONLY package manager, and AppImage support.
+#
+# Chain: molecule -> distro -> desktop-base -> desktop-gnome -> desktop
+#
+# The graphical session (GNOME for now) is a separate layer on top of this
+# one, so it can be replaced without touching anything here. A future
+# session layer only has to chain on desktop-base.
+#
+# Design decisions:
+#   - Flatpak is the only package manager. There is no apt/dnf/pacman/snap
+#     and the OS image itself is never modified at runtime. System-wide
+#     apps/runtimes live in /var/lib/flatpak (persistent, see desktop.yml),
+#     per-user ones in ~/.local/share/flatpak. Members of "wheel" install
+#     system-wide apps through flatpak's polkit-authorized system helper.
+#     Flathub is preconfigured (host-side task in desktop.yml).
+#   - AppImages are supported, not managed: libfuse2 for the runtime plus
+#     `splash-appimage` to integrate them into the menu.
+#   - Everything here is built into the read-only image root.
+#   - glib, gdk-pixbuf, json-glib and polkit are built WITH introspection
+#     here (buildmode 2 where the shared manifest has a GI-less mode 1 for
+#     the bootloader edition); the session layer needs their typelibs.
+#   - CA certificates: p11-kit + make-ca are installed here; desktop.yml
+#     generates the trust store from Mozilla's certdata.txt (host side).
+# ---------------------------------------------------------------------------
+
+parentconfig: distro
+
+packages:
+# ---- shared GLib / metadata base ------------------------------------
+    # flatpak hard-requires glib, libxml2, libcurl, appstream, gdk-pixbuf
+    # and json-glib. They used to live in desktop-gnome; they are here so
+    # the Flatpak base works under any session layer.
+    - package: "libpng"
+      version: "1.6.47"
+    - package: "glib"
+      version: "2.84.4"
+    # glib is built twice: without GI, then again with GI once
+    # gobject-introspection exists (GNOME Shell runs on typelibs).
+    - package: "gobject_introspection"
+      version: "1.84.0"
+    - package: "libxml2"
+      version: "2.13.6"
+    - package: "shared_mime_info"
+      version: "2.4"
+    - package: "gdk_pixbuf"
+      version: "2.42.12"
+    - package: "libyaml"
+      version: "0.2.5"
+    - package: "libxmlb"
+      version: "0.3.21"
+    # System CA trust store (the base image has none): p11-kit trust
+    # module + make-ca. curl (buildmode 2) and flatpak need it for HTTPS.
+    - package: "libtasn1"
+      version: "4.19.0"
+    - package: "p11_kit"
+      version: "0.25.5"
+    - package: "make_ca"
+      version: "1.14"
+    - package: "curl"
+      version: "8.18.0"
+    - package: "appstream"
+      version: "1.0.4"
+    - package: "json_glib"
+      version: "1.10.0"
+
+    # ---- AppImage support -----------------------------------------------
+    # Type-2 AppImages mount their SquashFS payload with libfuse2;
+    # `--appimage-extract-and-run` is the fallback without FUSE.
+    - package: "fuse"
+      version: "2.9.9"
+    # libfuse3: fusermount3 for flatpak, document portal, rofiles-fuse.
+    - package: "fuse3"
+      version: "3.16.2"
+    # Inspect/repack AppImages offline.
+    - package: "squashfs_tools"
+      version: "4.6.1"
+
+    # ---- desktop integration --------------------------------------------
+    # Makes exported Flatpak and AppImage .desktop files/icons show up.
+    - package: "desktop_file_utils"
+      version: "0.28"
+    - package: "hicolor_icon_theme"
+      version: "0.18"
+    - package: "xdg_user_dirs"
+      version: "0.18"
+    - package: "xdg_utils"
+      version: "1.2.1"
+
+    # ---- Flatpak: GPG verification of remotes (Flathub) -----------------
+    - package: "libgpg_error"
+      version: "1.51"
+    - package: "libgcrypt"
+      version: "1.11.0"
+    - package: "libassuan"
+      version: "3.0.1"
+    - package: "libksba"
+      version: "1.6.7"
+    - package: "npth"
+      version: "1.8"
+    - package: "gnupg"
+      version: "2.4.7"
+    - package: "gpgme"
+      version: "1.24.1"
+
+    # ---- Flatpak and its sandbox ----------------------------------------
+    - package: "libarchive"
+      version: "3.7.7"
+    - package: "libseccomp"
+      version: "2.5.5"
+    - package: "bubblewrap"
+      version: "0.11.0"
+    - package: "xdg_dbus_proxy"
+      version: "0.1.6"
+    # polkit (JS rules via duktape) authorizes flatpak's system helper.
+    - package: "duktape"
+      version: "2.7.0"
+    - package: "polkit"
+      version: "126"
+    - package: "ostree"
+      version: "2024.10"
+    - package: "flatpak"
+      version: "1.16.0"
+
+build:
+    - task: change_enviroment
+      enviroment: chroot
+      build:
+        - task: compile
+          package: libpng
+          buildmode: 1
+        - task: compile
+          package: glib
+          buildmode: 1
+        - task: compile
+          package: gobject_introspection
+          buildmode: 1
+        - task: compile
+          package: glib
+          buildmode: 2
+        - task: compile
+          package: libxml2
+          buildmode: 1
+        - task: compile
+          package: shared_mime_info
+          buildmode: 1
+        - task: compile
+          package: gdk_pixbuf
+          buildmode: 2
+        - task: compile
+          package: libyaml
+          buildmode: 1
+        - task: compile
+          package: libxmlb
+          buildmode: 1
+        - task: compile
+          package: libtasn1
+          buildmode: 1
+        - task: compile
+          package: p11_kit
+          buildmode: 1
+        - task: compile
+          package: make_ca
+          buildmode: 1
+        - task: compile
+          package: curl
+          buildmode: 2
+        - task: compile
+          package: appstream
+          buildmode: 1
+        - task: compile
+          package: json_glib
+          buildmode: 1
+        - task: compile
+          package: fuse
+          buildmode: 1
+        - task: compile
+          package: fuse3
+          buildmode: 1
+        - task: compile
+          package: squashfs_tools
+          buildmode: 1
+        - task: compile
+          package: desktop_file_utils
+          buildmode: 1
+        - task: compile
+          package: hicolor_icon_theme
+          buildmode: 1
+        - task: compile
+          package: xdg_user_dirs
+          buildmode: 1
+        - task: compile
+          package: xdg_utils
+          buildmode: 1
+        - task: compile
+          package: libgpg_error
+          buildmode: 1
+        - task: compile
+          package: libgcrypt
+          buildmode: 1
+        - task: compile
+          package: libassuan
+          buildmode: 1
+        - task: compile
+          package: libksba
+          buildmode: 1
+        - task: compile
+          package: npth
+          buildmode: 1
+        - task: compile
+          package: gnupg
+          buildmode: 1
+        - task: compile
+          package: gpgme
+          buildmode: 1
+        - task: compile
+          package: libarchive
+          buildmode: 1
+        - task: compile
+          package: libseccomp
+          buildmode: 1
+        - task: compile
+          package: bubblewrap
+          buildmode: 1
+        - task: compile
+          package: xdg_dbus_proxy
+          buildmode: 1
+        - task: compile
+          package: duktape
+          buildmode: 1
+        - task: compile
+          package: polkit
+          buildmode: 1
+        - task: compile
+          package: ostree
+          buildmode: 1
+        - task: compile
+          package: flatpak
+          buildmode: 1
+
+        # ---- immutable OS + Flatpak policy -------------------------------
+        - task: custom
+          commands:
+           - |
+            install -dv -m755 /etc/splashos
+            cat > /etc/splashos/package-policy << "EOF"
+            SplashOS Desktop uses Flatpak as its only package manager.
+
+            Install applications from Flathub:
+
+                flatpak install flathub org.example.App
+
+            System-wide installs (members of "wheel") go to
+            /var/lib/flatpak, per-user installs (flatpak --user) to
+            ~/.local/share/flatpak. Both survive reboots and OS updates.
+
+            AppImages are supported as well:
+
+                splash-appimage install /path/to/App.AppImage
+            EOF
+
+            cat > /etc/splashos/immutable << "EOF"
+            This system is immutable.
+
+            / is the read-only OS image. The running system uses systemd's
+            volatile overlay, so changes to OS files (including /etc) are
+            discarded on reboot. Persistent state lives on the partition
+            labelled splashos-data, mounted at /var: Flatpak apps
+            (/var/lib/flatpak), user homes (/home -> /var/home) and service
+            state.
+            EOF
+
+            # No other package manager may sneak in through a dependency.
+            # These are no-ops on a clean image.
+            rm -f /usr/bin/apt /usr/bin/apt-get /usr/bin/dpkg /usr/bin/dnf \
+                  /usr/bin/yum /usr/bin/rpm /usr/bin/pacman /usr/bin/snap \
+                  /usr/bin/zypper /usr/bin/emerge
+
+            # flatpak is the package manager and must be present.
+            command -v flatpak >/dev/null || { echo "flatpak missing" >&2; exit 1; }
+
+            # Remote definitions are read from /etc/flatpak/remotes.d on
+            # first use, so they ship in the image (immutable) while the
+            # repo itself is created on the persistent /var.
+            install -dv -m755 /etc/flatpak/remotes.d
+
+            # Flatpak's system helper runs as this user (sysusers.d is also
+            # installed, but the image never boots with an empty passwd).
+            getent group flatpak >/dev/null || groupadd -r flatpak
+            getent passwd flatpak >/dev/null || \
+                useradd -r -g flatpak -d / -s /bin/false -c "Flatpak system helper" flatpak
+
+            # FUSE for the AppImage runtime and fusermount3.
+            echo fuse > /etc/modules-load.d/fuse.conf
+
+            # ---- AppImage support: splash-appimage ------------------------
+            cat > /usr/bin/splash-appimage << "EOF"
+            #!/bin/sh
+            # splash-appimage - AppImage integration for SplashOS.
+            #
+            #   splash-appimage install <file.AppImage>
+            #   splash-appimage remove  <name>
+            #   splash-appimage list
+            #   splash-appimage update
+            #   splash-appimage run     <name> [args...]
+            #
+            # AppImages are copied into ~/.local/share/AppImages. The
+            # embedded .desktop file and icon are extracted and installed
+            # into the per-user XDG data dirs; no root is involved.
+            # (Flatpak is the package manager; this only integrates AppImages.)
+            set -eu
+
+            data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
+            apps_dir="$data_home/AppImages"
+            bin_dir="${XDG_BIN_HOME:-$HOME/.local/bin}"
+            desk_dir="$data_home/applications"
+            icon_dir="$data_home/icons"
+            mkdir -p "$apps_dir" "$bin_dir" "$desk_dir" "$icon_dir"
+
+            die() { printf 'splash-appimage: %s\n' "$*" >&2; exit 1; }
+
+            integrate() {
+                app="$1"
+                name="$(basename "$app")"
+                name="${name%.AppImage}"
+                name="${name%.appimage}"
+                tmp="$(mktemp -d)"
+                trap 'rm -rf "$tmp"' EXIT INT TERM
+
+                # --appimage-extract works without FUSE and is the portable
+                # way to get at the payload.
+                ( cd "$tmp" && "$app" --appimage-extract >/dev/null 2>&1 ) \
+                    || die "cannot extract $app"
+
+                desk="$(find "$tmp/squashfs-root" -maxdepth 3 -name '*.desktop' | head -n1 || true)"
+                if [ -n "$desk" ]; then
+                    base="$(basename "$desk")"
+                    sed "s|^Exec=.*|Exec=$app %U|" "$desk" > "$desk_dir/$base"
+                    chmod 644 "$desk_dir/$base"
+                    update-desktop-database "$desk_dir" >/dev/null 2>&1 || true
+                fi
+
+                # Keep the payload's theme layout when it ships one; otherwise
+                # fall back to the conventional hicolor apps slot.
+                find "$tmp/squashfs-root" -maxdepth 4 \
+                    \( -name '*.png' -o -name '*.svg' \) -print 2>/dev/null |
+                while IFS= read -r icon; do
+                    rel="${icon#"$tmp/squashfs-root/"}"
+                    case "$rel" in
+                        usr/share/icons/*) rel="${rel#usr/share/icons/}" ;;
+                        share/icons/*)     rel="${rel#share/icons/}" ;;
+                        *) rel="hicolor/256x256/apps/$(basename "$icon")" ;;
+                    esac
+                    dest="$icon_dir/$rel"
+                    mkdir -p "$(dirname "$dest")"
+                    cp -f "$icon" "$dest"
+                done
+                gtk-update-icon-cache -f -t "$icon_dir/hicolor" >/dev/null 2>&1 || true
+
+                # A stable command name for terminals / scripts.
+                ln -sf "$app" "$bin_dir/$name"
+                printf 'integrated %s\n' "$name"
+            }
+
+            cmd="${1:-}"
+            case "$cmd" in
+                install)
+                    [ -n "${2:-}" ] || die "usage: splash-appimage install <file.AppImage>"
+                    src="$2"
+                    [ -f "$src" ] || die "not a file: $src"
+                    name="$(basename "$src")"
+                    name="${name%.AppImage}"
+                    name="${name%.appimage}"
+                    dest="$apps_dir/$name.AppImage"
+                    cp -f "$src" "$dest"
+                    chmod 755 "$dest"
+                    integrate "$dest"
+                    ;;
+                remove)
+                    [ -n "${2:-}" ] || die "usage: splash-appimage remove <name>"
+                    name="$2"
+                    rm -f "$apps_dir/$name.AppImage" "$bin_dir/$name"
+                    rm -f "$desk_dir/$name.desktop"
+                    printf 'removed %s\n' "$name"
+                    ;;
+                list)
+                    for app in "$apps_dir"/*.AppImage; do
+                        [ -e "$app" ] || continue
+                        basename "$app" .AppImage
+                    done
+                    ;;
+                update)
+                    for app in "$apps_dir"/*.AppImage; do
+                        [ -e "$app" ] || continue
+                        integrate "$app"
+                    done
+                    ;;
+                run)
+                    [ -n "${2:-}" ] || die "usage: splash-appimage run <name> [args...]"
+                    name="$2"
+                    shift 2
+                    exec "$apps_dir/$name.AppImage" "$@"
+                    ;;
+                *)
+                    sed -n '2,13p' "$0" | sed 's/^# \{0,1\}//'
+                    exit 2
+                    ;;
+            esac
+            EOF
+            chmod 755 /usr/bin/splash-appimage
+
+            # Integrate new AppImages automatically at login and whenever
+            # the AppImages directory changes.
+            install -dv -m755 /usr/lib/systemd/user
+            cat > /usr/lib/systemd/user/splash-appimage-scan.service << "EOF"
+            [Unit]
+            Description=Integrate AppImages into the desktop menu
+
+            [Service]
+            Type=oneshot
+            ExecStart=/usr/bin/splash-appimage update
+
+            [Install]
+            WantedBy=default.target
+            EOF
+
+            cat > /usr/lib/systemd/user/splash-appimage-scan.path << "EOF"
+            [Unit]
+            Description=Watch ~/.local/share/AppImages for changes
+
+            [Path]
+            PathChanged=%h/.local/share/AppImages
+            Unit=splash-appimage-scan.service
+
+            [Install]
+            WantedBy=default.target
+            EOF
+            # Run once at login (also creates the AppImages directory) and
+            # then watch it for changes.
+            systemctl --global enable splash-appimage-scan.service splash-appimage-scan.path
+
+            # MIME type so file managers and the Open dialog treat .AppImage
+            # files as executables.
+            install -dv -m755 /usr/share/mime/packages
+            cat > /usr/share/mime/packages/splashos-appimage.xml << "EOF"
+            <?xml version="1.0" encoding="UTF-8"?>
+            <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+              <mime-type type="application/vnd.appimage">
+                <comment>AppImage application</comment>
+                <glob pattern="*.AppImage"/>
+                <glob pattern="*.appimage"/>
+                <generic-icon name="application-x-executable"/>
+              </mime-type>
+            </mime-info>
+            EOF
+            update-mime-database /usr/share/mime 2>/dev/null || true
+
+
+            # Exported Flatpak .desktop files/icons are found through the
+            # XDG_DATA_DIRS set by flatpak's profile.d script and systemd
+            # environment generators; refresh the system caches now.
+            update-desktop-database /usr/share/applications 2>/dev/null || true
+

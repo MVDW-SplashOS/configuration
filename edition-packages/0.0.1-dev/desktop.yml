@@ -1,0 +1,195 @@
+# ---------------------------------------------------------------------------
+# SplashOS "desktop" edition
+#
+# The immutable SplashOS desktop. This file is the leaf of the chain and
+# only holds what is specific to the final image: the desktop user, the
+# persistent-state layout and the boot configuration.
+#
+#   molecule -> distro -> desktop-base -> desktop-gnome -> desktop
+#
+#   desktop-base   immutable policy, Flatpak (the only package manager),
+#                  AppImage support
+#   desktop-gnome  the graphical session (GNOME for now; replace this
+#                  parentconfig to switch sessions)
+#
+# Partition layout of an installed system:
+#
+#   root  (ext4, built here)        the OS image, mounted READ-ONLY. The
+#                                   running system gets a tmpfs overlay
+#                                   (systemd.volatile=overlay), so changes
+#                                   to OS files - /etc included - are
+#                                   discarded on reboot.
+#   LABEL=splashos-data (ext4)      all persistent state, mounted at /var:
+#                                   /var/lib/flatpak  system Flatpaks
+#                                   /var/home         user homes (/home is
+#                                                     a symlink to var/home)
+#                                   /var/lib, /var/log service state
+#
+# One data partition instead of separate /home and /var partitions: Flatpak
+# apps and user data grow together, so a single pool never runs out on one
+# side while the other is empty. Without a splashos-data partition the
+# system still boots (live-session behaviour: /var stays on the volatile
+# overlay and nothing persists).
+#
+# On first boot with an empty data partition, splashos-var-init seeds /var
+# from the factory copy of the image's /var (/usr/share/factory/var).
+# ---------------------------------------------------------------------------
+
+parentconfig: desktop-gnome
+
+build:
+    # ---- host side: fetch Mozilla's CA list for make-ca --------------------
+    # The chroot is not guaranteed to have network access, so the host
+    # downloads certdata.txt into the image; make-ca runs in the chroot.
+    - task: custom
+      commands:
+       - |
+        mkdir -p "$splash_partition_root/etc/ssl"
+        if ! curl -fsSL https://hg-edge.mozilla.org/projects/nss/raw-file/tip/lib/ckfw/builtins/certdata.txt \
+                -o "$splash_partition_root/etc/ssl/certdata.txt"; then
+            echo "ERROR: could not download certdata.txt (CA trust store)" >&2
+            exit 1
+        fi
+
+    - task: change_enviroment
+      enviroment: chroot
+      build:
+        - task: custom
+          commands:
+           - |
+            # ---- CA trust store ---------------------------------------------
+            # p11-kit anchors, OpenSSL hashed dir, PEM bundle (curl/flatpak),
+            # NSS db. Lives in the image: trust updates come with OS updates.
+            /usr/sbin/make-ca -C /etc/ssl/certdata.txt
+            rm -f /etc/ssl/certdata.txt
+            test -s /etc/pki/tls/certs/ca-bundle.crt
+
+            # ---- /home lives on the persistent /var ------------------------
+            # Must happen before useradd so the user's home is created in
+            # /var/home (and therefore lands in the factory copy below).
+            install -dv -m755 /var/home
+            if [ ! -L /home ]; then
+                cp -a /home/. /var/home/ 2>/dev/null || true
+                rm -rf /home
+                ln -sfn var/home /home
+            fi
+
+            # ---- first desktop user ------------------------------------------
+            # A development image needs a usable login. The password is
+            # intentionally trivial and documented; change it before using
+            # the image outside a VM. NOTE: /etc is volatile, so a password
+            # changed at runtime does not survive a reboot yet.
+            # wheel = admin group (also flatpak's privileged_group and the
+            # polkit admin group); the rest are device-access groups.
+            [ -f /etc/group ] || : > /etc/group
+            [ -f /etc/gshadow ] || : > /etc/gshadow
+            for grp in wheel video audio input render; do
+                getent group "$grp" >/dev/null 2>&1 || groupadd -r "$grp"
+            done
+            install -dv -m755 /etc/skel/.config
+            if ! id splash >/dev/null 2>&1; then
+                useradd -m -u 1000 -G wheel,video,audio,input,render \
+                    -c "SplashOS User" -s /bin/bash splash
+            fi
+            echo 'splash:splash' | chpasswd
+            chmod 700 /var/home/splash
+
+            # ---- persistent /var bootstrap -----------------------------------
+            # A fresh splashos-data partition is empty and hides the image's
+            # /var. Seed it once from a factory copy taken at build time.
+            install -dv -m755 /usr/lib/splashos
+            cat > /usr/lib/splashos/var-init << "EOF"
+            #!/bin/sh
+            # Seed an empty persistent /var from the image's factory copy.
+            # Runs once per data partition (stamp file), never overwrites.
+            set -eu
+            stamp=/var/.splashos-initialized
+            [ -e "$stamp" ] && exit 0
+            cp -an /usr/share/factory/var/. /var/
+            # The user's home must be private even if cp ran as a merge.
+            for h in /var/home/*; do
+                [ -d "$h" ] && chmod 700 "$h"
+            done
+            : > "$stamp"
+            EOF
+            chmod 755 /usr/lib/splashos/var-init
+
+            cat > /etc/systemd/system/splashos-var-init.service << "EOF"
+            [Unit]
+            Description=Seed persistent /var from the SplashOS factory image
+            DefaultDependencies=no
+            RequiresMountsFor=/var
+            After=var.mount
+            Before=local-fs.target systemd-tmpfiles-setup.service systemd-journal-flush.service
+            ConditionPathExists=!/var/.splashos-initialized
+
+            [Service]
+            Type=oneshot
+            ExecStart=/usr/lib/splashos/var-init
+            RemainAfterExit=yes
+
+            [Install]
+            WantedBy=local-fs.target
+            EOF
+            systemctl enable splashos-var-init.service
+
+            # Desktop variant metadata.
+            sed -i 's/^VARIANT=.*/VARIANT="Desktop"/; s/^VARIANT_ID=.*/VARIANT_ID="desktop"/' /etc/os-release
+
+            # ---- factory copy of /var (last step inside the chroot) -----------
+            # Everything the image put in /var so far (user home, polkit and
+            # flatpak state dirs, ...). Volatile content is left out.
+            rm -rf /usr/share/factory/var
+            install -dv -m755 /usr/share/factory/var
+            tar -C /var \
+                --exclude=./tmp/* --exclude=./cache/* --exclude=./log/* \
+                --exclude=./.splashos-initialized \
+                -cf - . | tar -C /usr/share/factory/var -xpf -
+
+    # ---- host side: Flathub remote + immutable boot configuration ----------
+    # Runs after distro.yml's fstab/GRUB task, so it replaces the mutable
+    # defaults with the read-only + volatile-overlay configuration.
+    - task: custom
+      commands:
+       - |
+        # Flathub ships as a remote definition in the (immutable) image;
+        # flatpak adds it to the persistent repo on first use. The file
+        # carries Flathub's signing key, so take it from the source.
+        mkdir -p "$splash_partition_root/etc/flatpak/remotes.d"
+        if ! curl -fsSL https://dl.flathub.org/repo/flathub.flatpakrepo \
+                -o "$splash_partition_root/etc/flatpak/remotes.d/flathub.flatpakrepo"; then
+            echo "ERROR: could not download the Flathub remote definition" >&2
+            exit 1
+        fi
+
+        rootdev=$(findmnt -nro SOURCE "$splash_partition_root")
+        rootuuid=$(lsblk -no UUID "$rootdev")
+        if [ -z "$rootuuid" ]; then
+            echo "ERROR: could not determine root UUID for $rootdev" >&2
+            exit 1
+        fi
+        KVER=$(basename $(ls -d "$splash_partition_root"/lib/modules/*))
+
+        # / is read-only; systemd.volatile=overlay (GRUB below) gives the
+        # running system a writable tmpfs overlay. /var is the persistent
+        # splashos-data partition (nofail: boots as a live session without
+        # it). /tmp is tmpfs.
+        cat > "$splash_partition_root/etc/fstab" << EOF
+        UUID=$rootuuid / ext4 ro 0 1
+        LABEL=splashos-data /var ext4 defaults,nofail,x-systemd.device-timeout=5s 0 2
+        tmpfs /tmp tmpfs mode=1777,nosuid,nodev 0 0
+        EOF
+
+        mkdir -p "$splash_partition_root/boot/grub"
+        cat > "$splash_partition_root/boot/grub/grub.cfg" << EOF
+        set default=0
+        set timeout=5
+        menuentry "SplashOS 0.0.1-dev Desktop (Kokomi)" {
+            # No nomodeset: the 7.1.8 kernel has FRAMEBUFFER_CONSOLE, and
+            # GNOME Shell/mutter need KMS.
+            linux /boot/vmlinuz-$KVER-splashos-13.1-systemd root=UUID=$rootuuid ro systemd.volatile=overlay quiet
+            initrd /boot/initramfs-$KVER.img
+        }
+        EOF
+
+        echo "Desktop image is immutable: root ro + systemd.volatile=overlay, persistent /var on LABEL=splashos-data."
