@@ -35,7 +35,7 @@ parentconfig: desktop-base
 packages:
     # ---- toolchain / data needed by the rest of the layer ----
     - package: "cmake"
-      version: "3.31.2"
+      version: "4.4.5"
     - package: "icu"
       version: "76.1"
     - package: "rust"
