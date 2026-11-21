@@ -505,6 +505,11 @@ build:
         - task: compile
           package: libfontenc
           buildmode: 1
+        # FreeType has no X11 dependencies; it is built here because
+        # libxfont2 requires it.
+        - task: compile
+          package: freetype
+          buildmode: 1
         - task: compile
           package: libxfont2
           buildmode: 1
@@ -518,9 +523,6 @@ build:
           package: startup_notification
           buildmode: 1
         # ---- graphics / text stack; buildmode 2 = rebuilt with introspection and/or X11 ----
-        - task: compile
-          package: freetype
-          buildmode: 1
         - task: compile
           package: fribidi
           buildmode: 1
