@@ -991,7 +991,6 @@ build:
             # PipeWire is the only sound server (pipewire-pulse speaks the
             # PulseAudio protocol for libpulse clients).
             systemctl --global enable pipewire.socket pipewire-pulse.socket wireplumber.service
-            systemctl --global enable gcr-ssh-agent.socket || true
 
             # ---- caches for the read-only image -------------------------------
             # Everything below is normally refreshed by package-manager
