@@ -707,6 +707,9 @@ mozjs:
 make_ca:
   url: "https://github.com/lfs-book/make-ca/archive/v{VERSION}/make-ca-{VERSION}.tar.gz"
   subdir: true
+krb5:
+  url: "https://kerberos.org/dist/krb5/{VERSION_MAJOR}.{VERSION_MINOR}/krb5-{VERSION}.tar.gz"
+  subdir: true
 librest:
   url: "https://download.gnome.org/sources/rest/{VERSION_MAJOR}.{VERSION_MINOR}/rest-{VERSION}.tar.xz"
   subdir: true

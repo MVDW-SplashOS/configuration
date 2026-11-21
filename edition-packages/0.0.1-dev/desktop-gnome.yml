@@ -408,6 +408,8 @@ packages:
       version: "0.3.1"
     - package: "tecla"
       version: "47.0"
+    - package: "krb5"
+      version: "1.22.3"
     - package: "gnome_control_center"
       version: "47.2"
 
@@ -970,6 +972,11 @@ build:
           buildmode: 1
         - task: compile
           package: tecla
+          buildmode: 1
+        # MIT Kerberos: Settings' system/users panels require krb5 (enterprise
+        # login via realmd); there is no option to build without it.
+        - task: compile
+          package: krb5
           buildmode: 1
         - task: compile
           package: gnome_control_center
