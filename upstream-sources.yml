@@ -884,7 +884,9 @@ cups:
   url: "https://github.com/OpenPrinting/cups/releases/download/v{VERSION}/cups-{VERSION}-source.tar.gz"
   subdir: true
 samba:
-  url: "https://download.samba.org/pub/samba/stable/samba-{VERSION}.tar.gz"
+  # GWDG mirror of download.samba.org (byte-identical tarballs); samba.org
+  # serves an HTML error page to the GitHub Actions runners.
+  url: "https://ftp.gwdg.de/pub/samba/stable/samba-{VERSION}.tar.gz"
   subdir: true
 avahi:
   url: "https://github.com/avahi/avahi/releases/download/v{VERSION}/avahi-{VERSION}.tar.gz"
