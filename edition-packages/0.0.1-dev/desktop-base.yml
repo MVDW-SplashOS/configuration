@@ -122,6 +122,9 @@ packages:
       version: "126"
     - package: "ostree"
       version: "2024.10"
+    - package: "python_pyparsing"
+      version: "3.2.5"
+
     - package: "flatpak"
       version: "1.16.0"
 
@@ -236,6 +239,11 @@ build:
           buildmode: 1
         - task: compile
           package: ostree
+          buildmode: 1
+        # flatpak's meson setup requires the Python pyparsing module
+        # (libglnx's variant-schema-compiler runs at build time).
+        - task: compile
+          package: python_pyparsing
           buildmode: 1
         - task: compile
           package: flatpak

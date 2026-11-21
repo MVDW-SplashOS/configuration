@@ -707,6 +707,9 @@ mozjs:
 make_ca:
   url: "https://github.com/lfs-book/make-ca/archive/v{VERSION}/make-ca-{VERSION}.tar.gz"
   subdir: true
+python_pyparsing:
+  url: "https://files.pythonhosted.org/packages/source/p/pyparsing/pyparsing-{VERSION}.tar.gz"
+  subdir: true
 python_attrs:
   url: "https://files.pythonhosted.org/packages/source/a/attrs/attrs-{VERSION}.tar.gz"
   subdir: true
