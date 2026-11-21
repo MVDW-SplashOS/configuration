@@ -394,6 +394,8 @@ packages:
     - package: "brlaser"
       version: "6.2.8"
     # ---- GNOME Settings and its remaining dependencies ----
+    - package: "librest"
+      version: "0.9.1"
     - package: "gnome_online_accounts"
       version: "3.52.2"
     - package: "mobile_broadband_provider_info"
@@ -947,6 +949,10 @@ build:
           package: brlaser
           buildmode: 1
         # ---- GNOME Settings and its remaining dependencies ----
+        # rest-1.0: GOA's OAuth/OAuth2 providers (goabackend requires it).
+        - task: compile
+          package: librest
+          buildmode: 1
         - task: compile
           package: gnome_online_accounts
           buildmode: 1
